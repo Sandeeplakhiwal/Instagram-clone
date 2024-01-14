@@ -22,6 +22,7 @@ export default {
       },
       red: {
         primary: "#ed4956",
+        base: "#FF0000",
       },
     },
   },

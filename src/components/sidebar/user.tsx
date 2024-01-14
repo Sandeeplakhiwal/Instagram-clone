@@ -1,5 +1,4 @@
 import React from "react";
-import Skeleton from "react-loading-skeleton";
 import { Link } from "react-router-dom";
 
 interface UserProps {
@@ -9,7 +8,7 @@ interface UserProps {
 
 const User: React.FC<UserProps> = ({ username, fullName }) => {
   return !username || !fullName ? (
-    <Skeleton count={1} height={61} />
+    <p></p>
   ) : (
     <Link to={"/"} className="grid grid-cols-4 gap-4 mb-6 items-center">
       <div className="flex items-center justify-between col-span-1">

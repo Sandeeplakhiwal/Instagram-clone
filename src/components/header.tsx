@@ -5,9 +5,15 @@ import toast from "react-hot-toast";
 import { removeUser } from "../redux/slices/userSlice";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { logoutApi } from "../apis";
+import UseAuthListener from "../hooks/useAuthListener";
+import { RootState } from "../redux/store";
 
 function Header() {
-  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.user
+  );
+
+  console.log(isAuthenticated, user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,7 +38,8 @@ function Header() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-primary mb-8">
+    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0">
+      <UseAuthListener />
       <div className="container mx-auto max-w-screen-lg h-full">
         <div className="flex justify-between w-full h-full">
           <div className="text-gray-700 text-center flex items-center align-middle cursor-pointer">
@@ -49,7 +56,7 @@ function Header() {
           <div className="text-gray-700 textcenter flex items-center align-middle">
             {isAuthenticated ? (
               <>
-                <Link to={PageRoutes.DASHBOARD}>
+                <Link to={PageRoutes.DASHBOARD} className=" mr-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -65,11 +72,27 @@ function Header() {
                     />
                   </svg>
                 </Link>
+                <Link to={PageRoutes.SEARCH} className=" mr-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                </Link>
                 <button
                   type="button"
                   title="Sign Out"
                   onClick={handleLogout}
-                  className="w-9 text-center pl-0.5"
+                  className="w-9 text-center pl-0.5 mr-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

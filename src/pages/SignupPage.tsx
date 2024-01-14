@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signupApi } from "../apis";
 import toast from "react-hot-toast";
 import { DASHBOARD, LOGIN } from "../constants/routes";
+import { isAxiosError } from "axios";
 
 function SignupPage() {
   const navigate = useNavigate();
@@ -54,13 +55,16 @@ function SignupPage() {
       toast.success("Registered successfully");
       navigate(DASHBOARD);
     }
-    if (error && error.message === "Network Error") {
-      toast.error("Network Error");
-      error = null;
-    }
-    if (error && error.message !== "Network Error") {
-      toast.error(error?.response?.data?.message);
-      error = null;
+    if (error) {
+      if (isAxiosError(error) && error?.message === "Network Error") {
+        toast.error("Network error");
+      }
+
+      if (isAxiosError(error) && error.response && error.response.data) {
+        const errorMessage = (error.response.data as { message: string })
+          .message;
+        toast.error(errorMessage);
+      }
     }
   }, [isSuccess, error, data]);
 
