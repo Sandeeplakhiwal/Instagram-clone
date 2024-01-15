@@ -3,7 +3,6 @@ import Header from "../components/header";
 import Post from "../components/post";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  UseFollowUser,
   followUserApi,
   getUserFollowersApi,
   getUserFollowingsApi,
