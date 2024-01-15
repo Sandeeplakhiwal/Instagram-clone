@@ -240,7 +240,7 @@ const Header: React.FC<UserInterface> = ({ username, userId, postId }) => {
             </>
           ) : null}
           <li className=" font-semibold border-b border-gray-primary py-3 cursor-pointer">
-            <Link to={`/p/${username}`}>Visit this account</Link>
+            <Link to={`/p/${username}/${userId}`}>Visit this account</Link>
           </li>
           <li
             className=" font-semibold border-b border-gray-primary py-3 cursor-pointer"

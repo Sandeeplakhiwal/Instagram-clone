@@ -7,8 +7,13 @@ interface ImageDragAndDropProps {
   closeModal: () => void;
 }
 
+interface SelectedFile {
+  file: File;
+  dataUrl: string;
+}
+
 const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
 
   const [dragging, setDragging] = useState(false);
 
@@ -26,7 +31,7 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragging(false);
 
@@ -34,31 +39,43 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
     if (files && files.length > 0) {
       const file = files[0];
 
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setSelectedFile(file);
-        }
-      };
+      try {
+        const dataUrl = await readFileAsync(file);
+        setSelectedFile({ file, dataUrl });
+      } catch (error) {
+        console.error("Error reading file:", error);
+      }
     }
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const readFileAsync = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          resolve(reader.result as string);
+        }
+      };
+
+      reader.onerror = reject;
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
     if (files && files.length > 0) {
       const file = files[0];
 
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setSelectedFile(file);
-        }
-      };
+      try {
+        const dataUrl = await readFileAsync(file);
+        setSelectedFile({ file, dataUrl });
+      } catch (error) {
+        console.error("Error reading file:", error);
+      }
     }
   };
 
@@ -76,17 +93,16 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
       toast.success("Post Created Successfully");
       queryClient.invalidateQueries({ queryKey: ["postsOfFollowing"] });
     },
+    onError: (error) => {
+      if (error.message === "Network Error") toast.error("You are offline!");
+      else toast.error("Internal server error!");
+    },
   });
 
   const handlePostSubmit = (e: FormEvent) => {
     e.preventDefault();
-    mutateAsync({ caption, image: selectedFile });
+    mutateAsync({ caption, image: selectedFile?.dataUrl });
   };
-
-  console.log(selectedFile);
-  // console.log(URL.createObjectURL(selectedFile));
-
-  console.log(MutationPending);
 
   return (
     <div className="flex flex-col sm:flex-row justify-center text-center gap-5 sm:gap-0">
@@ -100,7 +116,7 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
             alt="Uploaded Image"
             className="object-cover w-full h-full rounded-md"
             height={200}
-            src={URL.createObjectURL(selectedFile)} // Use createObjectURL to display the selectedFile
+            src={selectedFile.dataUrl} // Use createObjectURL to display the selectedFile
             style={{
               aspectRatio: "200/200",
               objectFit: "cover",

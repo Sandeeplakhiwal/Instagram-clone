@@ -1,10 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FC, useEffect, useState } from "react";
-import { getPostLikesApi, likeDislikePostApi } from "../../apis";
+import { followUserApi, getPostLikesApi, likeDislikePostApi } from "../../apis";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { AxiosError } from "axios";
 import { RootState } from "../../redux/store";
+import { FollowingsModal } from "../templates";
+import { Link } from "react-router-dom";
+import { isSelfProfile } from "../../pages/profilePage";
+import LittleLoader from "../littleLoader";
+import { isFollowing } from "../sidebar/suggestedProfile";
+import { User } from "../../redux/slices/userSlice";
 
 interface ActionProps {
   totalLikes: any[];
@@ -27,6 +33,17 @@ const Actions: FC<ActionProps> = ({
     hasUserLikedPost(totalLikes)
   );
   const [likes, setLikes] = useState(totalLikes.length);
+  const [isLikesModalOpen, setIsLikesModalOpen] = useState(false);
+  const [idToFollow, setIdToFollow] = useState<string | undefined>("");
+
+  const [likedBy, setLikedBy] = useState(totalLikes);
+
+  function closeLikesModal() {
+    setIsLikesModalOpen(false);
+  }
+  function openLikesModal() {
+    setIsLikesModalOpen(true);
+  }
 
   const {
     data: updatedLikes,
@@ -50,6 +67,18 @@ const Actions: FC<ActionProps> = ({
     enabled: false,
   });
 
+  const {
+    data: followUserData,
+    refetch: followUserRefetch,
+    error: followUserError,
+    isSuccess: followUserSuccess,
+    isLoading: followUserLoading,
+  } = useQuery({
+    queryKey: ["Follow-user", idToFollow ? idToFollow : ""],
+    queryFn: followUserApi,
+    enabled: false,
+  });
+
   const handleToggleLiked = () => {
     setToggleLiked(!toggleLiked);
     likeRefetch();
@@ -65,6 +94,8 @@ const Actions: FC<ActionProps> = ({
     // return likeIndex == -1 ? false : true;
     return likeIndex !== -1;
   }
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (likeSuccess && likeData) {
@@ -90,8 +121,40 @@ const Actions: FC<ActionProps> = ({
   useEffect(() => {
     if (updateLikesSuccess && updatedLikes && likeSuccess) {
       setLikes(updatedLikes.data?.likes?.length);
+      setLikedBy(updatedLikes.data?.likes);
     }
   }, [updateLikesSuccess, updatedLikes, likeSuccess]);
+
+  useEffect(() => {
+    if (followUserSuccess && followUserData) {
+      queryClient.refetchQueries({
+        queryKey: ["user"],
+      });
+      queryClient.refetchQueries({
+        queryKey: ["user-profile"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["postsOfFollowing"] });
+    }
+    if (followUserError) {
+      if (
+        isAxiosError(followUserError) &&
+        followUserError?.message === "Network Error"
+      ) {
+        toast.error("Network error");
+      }
+
+      if (
+        isAxiosError(followUserError) &&
+        followUserError.response &&
+        followUserError.response.data
+      ) {
+        const errorMessage = (
+          followUserError.response.data as { message: string }
+        ).message;
+        toast.error(errorMessage);
+      }
+    }
+  }, [followUserSuccess, followUserData, followUserError]);
 
   return (
     <>
@@ -136,10 +199,77 @@ const Actions: FC<ActionProps> = ({
         </div>
       </div>
       <div className="p-4 py-0">
-        <p className="font-bold text-xs">
+        <p
+          className="font-bold text-xs cursor-pointer"
+          onClick={openLikesModal}
+        >
           {likes === 1 ? `${likes} like` : `${likes} likes`}
         </p>
       </div>
+      <FollowingsModal isOpen={isLikesModalOpen} onClose={closeLikesModal}>
+        <div>
+          <div className=" flex p-4 pt-1 pb-1">
+            <p className=" text-center flex-grow">Liked by</p>
+            <button onClick={closeLikesModal} className=" cursor-pointer">
+              X
+            </button>
+          </div>
+          <hr className=" text-gray-primary" />
+          <div className=" p-4 pt-4 overflow-y-auto max-h-80">
+            <ul>
+              {likedBy.length > 0 ? (
+                likedBy.map((profile: User) => (
+                  <li className=" flex gap-2 text-xs font-semibold mb-6">
+                    <div>
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeLikesModal}
+                      >
+                        <img
+                          src="/images/avatars/dali.jpg"
+                          alt="dali"
+                          className=" h-8 w-10 rounded-full"
+                        />
+                      </Link>
+                    </div>
+
+                    <div className=" flex  w-full items-center">
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeLikesModal}
+                        className=" flex-grow"
+                      >
+                        <p className=" whitespace-nowrap overflow-hidden text-ellipsis">
+                          {profile.name}
+                        </p>
+                      </Link>
+                      {isSelfProfile(user, profile?._id) === false ? (
+                        <button
+                          className=" bg-[#efefef] py-1 px-3 rounded-md"
+                          onClick={() => {
+                            setIdToFollow(profile?._id);
+                            setTimeout(() => followUserRefetch(), 500);
+                          }}
+                        >
+                          {followUserLoading ? (
+                            <LittleLoader />
+                          ) : isFollowing(user, profile?._id) ? (
+                            "Following"
+                          ) : (
+                            "Follow"
+                          )}
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p>No Likes</p>
+              )}
+            </ul>
+          </div>
+        </div>
+      </FollowingsModal>
     </>
   );
 };

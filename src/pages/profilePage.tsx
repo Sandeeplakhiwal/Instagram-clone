@@ -21,6 +21,10 @@ import { isAxiosError } from "axios";
 import { PostTypes } from "../components/timeline";
 import { FollowersModal, FollowingsModal } from "../components/templates";
 
+export function isSelfProfile(user: User | null | undefined, id: string) {
+  return user?._id.toString() === id.toString();
+}
+
 function ProfilePage() {
   const [userPosts, setUserPosts] = useState([]);
   const { user } = useSelector((state: RootState) => state.user);
@@ -183,10 +187,6 @@ function ProfilePage() {
       setUserPosts(userPostsData?.data?.posts);
     }
   }, [userPostsSuccess, userPostsData]);
-
-  function isSelfProfile(user: User | null | undefined, id: string) {
-    return user?._id.toString() === id.toString();
-  }
 
   return userProfileLoading === true ? (
     <AppFallback />

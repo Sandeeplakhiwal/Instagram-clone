@@ -118,7 +118,7 @@ export const UseFollowUser = (id: string) => {
 export const createNewPostApi = (formData: object) => {
   return axios.post(`${server}/post/upload`, formData, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "application/json",
     },
     withCredentials: true,
   });
