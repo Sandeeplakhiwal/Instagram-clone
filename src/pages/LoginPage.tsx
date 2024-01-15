@@ -70,13 +70,14 @@ function LoginPage() {
   return (
     <PageLoader>
       <div className="container flex mx-auto max-w-screen-md items-center h-screen">
-        <div className="flex w-3/5">
+        <div className="flex justify-center w-0 sm:w-3/5 h-4/5 invisible sm:visible">
           <img
             src="/images/iphone-with-profile.jpg"
             alt="iphone with profile img"
+            className=" object-contain"
           />
         </div>
-        <div className="flex flex-col w-2/5 ">
+        <div className="flex flex-col mx-auto w-4/5 sm:w-2/5 ">
           <div className="bg-white flex flex-col items-center p-4 pb-4 border border-gray-primary mb-4">
             <h1 className="flex justify-center w-full">
               <img

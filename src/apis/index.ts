@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 // const server: string =
@@ -104,9 +105,14 @@ export const getPopularFollowSuggestionsApi = () => {
 
 export const followUserApi = ({ queryKey }: queryKeyParams) => {
   const userId = queryKey[1];
+  console.log("userId", userId);
   return axios.get(`${server}/follow/${userId}`, {
     withCredentials: true,
   });
+};
+
+export const UseFollowUser = (id: string) => {
+  return useQuery({ queryKey: ["Follow-user", id], queryFn: followUserApi });
 };
 
 export const createNewPostApi = (formData: object) => {
@@ -186,6 +192,20 @@ export const getUserProfileApi = ({ queryKey }: queryKeyParams) => {
 export const getUserPostsApi = ({ queryKey }: queryKeyParams) => {
   const id: string = queryKey[1];
   return axios.get(`${server}/user/posts/${id}`, {
+    withCredentials: true,
+  });
+};
+
+export const getUserFollowingsApi = ({ queryKey }: queryKeyParams) => {
+  const id: string = queryKey[1];
+  return axios.get(`${server}/user/followings/${id}`, {
+    withCredentials: true,
+  });
+};
+
+export const getUserFollowersApi = ({ queryKey }: queryKeyParams) => {
+  const id: string = queryKey[1];
+  return axios.get(`${server}/user/followers/${id}`, {
     withCredentials: true,
   });
 };

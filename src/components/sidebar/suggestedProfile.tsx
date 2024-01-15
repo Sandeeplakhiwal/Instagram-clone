@@ -14,6 +14,16 @@ interface SugProfileType {
   userName: string;
 }
 
+export const isFollowing = (user: User | null | undefined, _id: string) => {
+  let myIndex = -1;
+  user?.following?.forEach((item: User, index: number) => {
+    if (item._id.toString() === _id.toString()) {
+      myIndex = index;
+    }
+  });
+  return myIndex === -1 ? false : true;
+};
+
 const SuggestedProfile: React.FC<SugProfileType> = ({
   _id,
   avatar,
@@ -35,16 +45,6 @@ const SuggestedProfile: React.FC<SugProfileType> = ({
   const handleFollowBtn = (_id: string) => {
     console.log("Now Following");
     followUserRefetch();
-  };
-
-  const isFollowing = (user: User | null | undefined, _id: string) => {
-    let myIndex = -1;
-    user?.following?.forEach((item: User, index: number) => {
-      if (item._id.toString() === _id.toString()) {
-        myIndex = index;
-      }
-    });
-    return myIndex === -1 ? false : true;
   };
 
   const queryClient = useQueryClient();
@@ -75,16 +75,17 @@ const SuggestedProfile: React.FC<SugProfileType> = ({
 
   return (
     <div className="flex flex-row items-center align-items justify-between">
-      <div className=" flex items-center justify-center">
-        <img
-          src={avatar}
-          alt="avatar"
-          className=" rounded-full w-8 flex mr-3"
-        />
-        <Link to={"/"}>
+      <Link to={`/p/${userName}/${_id}`}>
+        <div className=" flex items-center justify-center">
+          <img
+            src={avatar}
+            alt="avatar"
+            className=" rounded-full w-8 flex mr-3"
+          />
+
           <p className="font-bold text-sm">{userName}</p>
-        </Link>
-      </div>
+        </div>
+      </Link>
       <button
         className={` text-xs font-bold text-blue-medium`}
         onClick={() => handleFollowBtn(_id)}

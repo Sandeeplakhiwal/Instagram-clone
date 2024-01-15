@@ -2,10 +2,16 @@ import { Suspense, useEffect, useState } from "react";
 import Header from "../components/header";
 import Post from "../components/post";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { followUserApi, getUserPostsApi, getUserProfileApi } from "../apis";
-import { WhiteLittleLoader } from "../components/littleLoader";
+import {
+  followUserApi,
+  getUserFollowersApi,
+  getUserFollowingsApi,
+  getUserPostsApi,
+  getUserProfileApi,
+} from "../apis";
+import LittleLoader, { WhiteLittleLoader } from "../components/littleLoader";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import AppFallback from "../components/appFallback";
 import ZigZagLoader from "../components/zigZagLoader";
 import toast from "react-hot-toast";
@@ -13,11 +19,18 @@ import { RootState } from "../redux/store";
 import { User } from "../redux/slices/userSlice";
 import { isAxiosError } from "axios";
 import { PostTypes } from "../components/timeline";
+import { FollowersModal, FollowingsModal } from "../components/templates";
 
 function ProfilePage() {
   const [userPosts, setUserPosts] = useState([]);
   const { user } = useSelector((state: RootState) => state.user);
   const queryClient = useQueryClient();
+  const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false);
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
+
+  const [userProfile, setUserProfile] = useState<User | null>(null);
+  const [userFollowings, setUserFollowings] = useState<User[] | []>([]);
+  const [userFollowers, setUserFollowers] = useState<User[] | []>([]);
 
   type RouteParams = {
     id: string;
@@ -25,6 +38,8 @@ function ProfilePage() {
 
   // Inside your component
   const { id } = useParams<RouteParams>();
+
+  const [idToFollow, setIdToFollow] = useState<string | undefined>(id);
 
   useEffect(() => {
     document.title = user ? user.name : "";
@@ -72,10 +87,59 @@ function ProfilePage() {
     isSuccess: followUserSuccess,
     isLoading: followUserLoading,
   } = useQuery({
-    queryKey: ["Follow-user", id ? id : ""],
+    queryKey: ["Follow-user", idToFollow ? idToFollow : ""],
     queryFn: followUserApi,
     enabled: false,
   });
+
+  const {
+    data: followingsData,
+    refetch: followingsRefetch,
+    isSuccess: followingsSuccess,
+    isLoading: followingLoading,
+  } = useQuery({
+    queryKey: ["followings", id ? id : ""],
+    queryFn: getUserFollowingsApi,
+    enabled: false,
+  });
+
+  const {
+    data: followersData,
+    refetch: followersRefetch,
+    isSuccess: followersSuccess,
+    isLoading: followersLoading,
+  } = useQuery({
+    queryKey: ["followers", id ? id : ""],
+    queryFn: getUserFollowersApi,
+    enabled: false,
+  });
+
+  const openFollowingModal = () => {
+    setIsFollowingModalOpen(true);
+  };
+  const openFollowersModal = () => {
+    setIsFollowersModalOpen(true);
+  };
+
+  const closeFollowingModal = () => {
+    setIsFollowingModalOpen(false);
+  };
+  const closeFollowersModal = () => {
+    setIsFollowersModalOpen(false);
+  };
+
+  useEffect(() => {
+    if (followingsData && followingsSuccess) {
+      setUserFollowings(followingsData?.data?.followings);
+    }
+  }, [followingsData, followingsSuccess]);
+
+  useEffect(() => {
+    if (followersData && followersSuccess) {
+      setUserFollowers(followersData?.data?.followers);
+      // console.log(followersData?.data?.followers);
+    }
+  }, [followersData, followersSuccess]);
 
   useEffect(() => {
     if (followUserSuccess && followUserData) {
@@ -107,8 +171,6 @@ function ProfilePage() {
       }
     }
   }, [followUserError, followUserSuccess, followUserData]);
-
-  const [userProfile, setUserProfile] = useState<User | null>(null);
 
   useEffect(() => {
     if (userProfileSucces && userProfileData) {
@@ -154,11 +216,23 @@ function ProfilePage() {
                 {userProfile?.post?.length}{" "}
                 <span className=" font-normal">posts</span>
               </p>
-              <p className=" font-semibold text-center">
+              <p
+                className=" font-semibold text-center cursor-pointer"
+                onClick={() => {
+                  followersRefetch();
+                  openFollowersModal();
+                }}
+              >
                 {userProfile?.followers?.length}{" "}
                 <span className=" font-normal">followers</span>
               </p>
-              <p className=" font-semibold text-center">
+              <p
+                className=" font-semibold text-center cursor-pointer"
+                onClick={() => {
+                  followingsRefetch();
+                  openFollowingModal();
+                }}
+              >
                 {userProfile?.following?.length}{" "}
                 <span className=" font-normal">following</span>
               </p>
@@ -201,6 +275,151 @@ function ProfilePage() {
           )}
         </div>
       </div>
+      <FollowingsModal
+        isOpen={isFollowingModalOpen}
+        onClose={closeFollowingModal}
+      >
+        <div>
+          <div className=" flex p-4 pt-1 pb-1">
+            <p className=" text-center flex-grow">Following</p>
+            <button onClick={closeFollowingModal} className=" cursor-pointer">
+              X
+            </button>
+          </div>
+          <hr className=" text-gray-primary" />
+          <div className=" p-4 pt-4 overflow-y-auto max-h-80">
+            <ul>
+              {followingLoading ? (
+                <p className=" flex justify-center w-full ">
+                  <LittleLoader />
+                </p>
+              ) : userFollowings.length > 0 ? (
+                userFollowings.map((profile: User) => (
+                  <li className=" flex gap-2 text-xs font-semibold mb-6">
+                    <div>
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeFollowingModal}
+                      >
+                        <img
+                          src="/images/avatars/dali.jpg"
+                          alt="dali"
+                          className=" h-8 w-10 rounded-full"
+                        />
+                      </Link>
+                    </div>
+
+                    <div className=" flex  w-full items-center">
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeFollowingModal}
+                        className=" flex-grow"
+                      >
+                        <p className=" whitespace-nowrap overflow-hidden text-ellipsis">
+                          {profile.name}
+                        </p>
+                      </Link>
+                      {isSelfProfile(user, profile?._id) === false ? (
+                        <button
+                          className=" bg-[#efefef] py-1 px-3 rounded-md"
+                          onClick={() => {
+                            setIdToFollow(profile?._id);
+                            setTimeout(() => followUserRefetch(), 500);
+                          }}
+                        >
+                          {followUserLoading ? (
+                            <LittleLoader />
+                          ) : isFollowing(profile?._id) ? (
+                            "Following"
+                          ) : (
+                            "Follow"
+                          )}
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p>No Following</p>
+              )}
+            </ul>
+          </div>
+        </div>
+      </FollowingsModal>
+      <FollowersModal
+        isOpen={isFollowersModalOpen}
+        onClose={openFollowersModal}
+      >
+        <div>
+          <div className=" flex p-4 pt-1 pb-1">
+            <p className=" text-center flex-grow">Followers</p>
+            <button onClick={closeFollowersModal} className=" cursor-pointer">
+              X
+            </button>
+          </div>
+          <hr className=" text-gray-primary" />
+          <div className=" p-4 pt-4 overflow-y-auto max-h-80">
+            <ul>
+              {followersLoading ? (
+                <p className=" flex justify-center w-full ">
+                  <LittleLoader />
+                </p>
+              ) : userFollowers.length > 0 ? (
+                userFollowers.map((profile: User) => (
+                  <li className=" flex gap-2 text-xs font-semibold mb-6">
+                    <div>
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeFollowersModal}
+                      >
+                        <img
+                          src="/images/avatars/dali.jpg"
+                          alt="dali"
+                          className=" h-8 w-10 rounded-full"
+                        />
+                      </Link>
+                    </div>
+                    <div className=" flex  w-full items-center">
+                      <Link
+                        to={`/p/${profile?.name}/${profile?._id}`}
+                        onClick={closeFollowersModal}
+                        className=" flex-grow"
+                      >
+                        <p className=" flex whitespace-nowrap overflow-hidden text-ellipsis">
+                          {profile.name}
+                        </p>
+                      </Link>
+                      {isSelfProfile(user, id ? id : "") ? (
+                        <button className=" bg-[#efefef] py-1 px-3 rounded-md cursor-not-allowed">
+                          Remove
+                        </button>
+                      ) : isSelfProfile(user, profile?._id) === false ? (
+                        <button
+                          className=" bg-[#efefef] py-1 px-3 rounded-md"
+                          onClick={() => {
+                            setIdToFollow(profile?._id);
+                            setTimeout(() => followUserRefetch(), 500);
+                          }}
+                        >
+                          {followUserLoading ? (
+                            <LittleLoader />
+                          ) : isFollowing(profile?._id) ? (
+                            "Following"
+                          ) : (
+                            "Follow"
+                          )}
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p>No Followers</p>
+              )}
+            </ul>
+          </div>
+        </div>
+      </FollowersModal>
     </div>
   );
 }
