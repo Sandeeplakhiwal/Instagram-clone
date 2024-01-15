@@ -1,10 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import * as PageRoutes from "./constants/routes.ts";
 import { Toaster } from "react-hot-toast";
-import UseAuthListener from "./hooks/useAuthListener.tsx";
 import RunningBorder from "./components/runningBorder.tsx";
 import AppFallback from "./components/appFallback.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
+import { authApi } from "./apis/index.ts";
+import { loadUser } from "./redux/slices/userSlice.ts";
+import { RootState } from "./redux/store.ts";
 
 const Login = lazy(() => import("./pages/LoginPage.tsx"));
 const SignUp = lazy(() => import("./pages/SignupPage.tsx"));
@@ -14,16 +18,45 @@ const Search = lazy(() => import("./pages/searchPage.tsx"));
 const Profile = lazy(() => import("./pages/profilePage.tsx"));
 
 function App() {
-  return (
+  const dispatch = useDispatch();
+  const {
+    data: authData,
+    isSuccess,
+    isLoading: authLoading,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: authApi,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+  useEffect(() => {
+    if (authData && isSuccess) {
+      dispatch(loadUser(authData?.data?.user));
+    }
+  }, [authData, isSuccess]);
+
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  return authLoading ? (
+    <AppFallback />
+  ) : (
     <Router>
-      <UseAuthListener />
       <Suspense fallback={<AppFallback />}>
         <Routes>
-          <Route path={PageRoutes.DASHBOARD} element={<Dashboard />} />
+          <Route
+            path={PageRoutes.DASHBOARD}
+            element={isAuthenticated ? <Dashboard /> : <Login />}
+          />
           <Route path={PageRoutes.LOGIN} element={<Login />} />
           <Route path={PageRoutes.SIGN_UP} element={<SignUp />} />
-          <Route path={PageRoutes.SEARCH} element={<Search />} />
-          <Route path={PageRoutes.PROFILE} element={<Profile />} />
+          <Route
+            path={PageRoutes.SEARCH}
+            element={isAuthenticated ? <Search /> : <Login />}
+          />
+          <Route
+            path={PageRoutes.PROFILE}
+            element={isAuthenticated ? <Profile /> : <Login />}
+          />
           <Route path={PageRoutes.NOT_FOUND} element={<NotFound />} />
           <Route path="test" element={<RunningBorder />} />
         </Routes>

@@ -5,7 +5,6 @@ import toast from "react-hot-toast";
 import { removeUser } from "../redux/slices/userSlice";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { logoutApi } from "../apis";
-import UseAuthListener from "../hooks/useAuthListener";
 import { RootState } from "../redux/store";
 
 function Header() {
@@ -39,7 +38,6 @@ function Header() {
 
   return (
     <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0">
-      <UseAuthListener />
       <div className="container mx-auto max-w-screen-lg h-full">
         <div className="flex justify-between w-full h-full">
           <div className="text-gray-700 text-center flex items-center align-middle cursor-pointer">
@@ -111,7 +109,7 @@ function Header() {
                 </button>
                 {user && (
                   <div className="flex items-center cursor-pointer">
-                    <Link to={PageRoutes.PROFILE}>
+                    <Link to={`/p/${user?.name}/${user?._id}`}>
                       <img
                         src="/images/avatars/dali.jpg"
                         alt="avatar"

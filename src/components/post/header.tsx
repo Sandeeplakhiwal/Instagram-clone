@@ -296,7 +296,7 @@ const Header: React.FC<UserInterface> = ({ username, userId, postId }) => {
 
 export default Header;
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;

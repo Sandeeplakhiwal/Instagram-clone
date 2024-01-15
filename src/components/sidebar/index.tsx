@@ -59,6 +59,7 @@ function Sidebar() {
         <User
           username={user && user.name ? user.name.split(" ")[0] : ""}
           fullName={user ? user.name : ""}
+          userId={user ? user._id : ""}
         />
         <Suggestions
           users={
