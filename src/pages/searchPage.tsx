@@ -100,8 +100,12 @@ const SearchBar = () => {
                   >
                     <div>
                       <img
-                        src="/images/avatars/dali.jpg"
-                        alt="dali"
+                        src={
+                          profile?.avatar
+                            ? profile.avatar?.url
+                            : "/images/avatars/default.png"
+                        }
+                        alt={profile?.name}
                         className=" h-8 w-8 rounded-full"
                       />
                     </div>

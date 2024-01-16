@@ -2,6 +2,7 @@ import React from "react";
 import SuggestedProfile from "./suggestedProfile";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
+import { User } from "../../redux/slices/userSlice";
 
 interface SuggestionsProps {
   users: any[];
@@ -21,12 +22,16 @@ const Suggestions: React.FC<SuggestionsProps> = ({ users = [] }) => {
         </p>
       </div>
       <div className=" mt-4 grid gap-5">
-        {users.map((user) => (
+        {users.map((profile: User) => (
           <SuggestedProfile
-            key={user._id}
-            avatar={"/images/avatars/dali.jpg"}
-            userName={user?.name}
-            _id={user?._id}
+            key={profile._id}
+            avatar={
+              profile?.avatar
+                ? profile?.avatar?.url
+                : "/images/avatars/default.png"
+            }
+            userName={profile?.name}
+            _id={profile?._id}
           />
         ))}
       </div>

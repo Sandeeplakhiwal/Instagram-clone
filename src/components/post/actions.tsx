@@ -226,8 +226,12 @@ const Actions: FC<ActionProps> = ({
                         onClick={closeLikesModal}
                       >
                         <img
-                          src="/images/avatars/dali.jpg"
-                          alt="dali"
+                          src={
+                            profile?.avatar
+                              ? profile.avatar?.url
+                              : "/images/avatars/default.png"
+                          }
+                          alt={profile?.name}
                           className=" h-8 w-10 rounded-full"
                         />
                       </Link>

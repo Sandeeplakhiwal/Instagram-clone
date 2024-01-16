@@ -34,7 +34,7 @@ function TimeLine() {
     <div className=" container col-span-full md:col-span-2 px-3 md:px-0">
       {user?.following === undefined ? (
         <p></p>
-      ) : user?.following.length === 0 ? (
+      ) : user?.following.length === 0 && user?.post?.length === 0 ? (
         <p>Follow other people to see photos</p>
       ) : (
         <>

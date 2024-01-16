@@ -28,10 +28,25 @@ function SignupPage() {
 
   const queryClient = useQueryClient();
 
-  let { data, error, isPending, isSuccess, mutateAsync } = useMutation({
+  let { isPending, mutateAsync } = useMutation({
     mutationFn: signupApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      navigate(DASHBOARD);
+      toast.success("Registered successfully");
+    },
+    onError: (error) => {
+      if (error) {
+        if (isAxiosError(error) && error?.message === "Network Error") {
+          toast.error("Network error");
+        }
+
+        if (isAxiosError(error) && error.response && error.response.data) {
+          const errorMessage = (error.response.data as { message: string })
+            .message;
+          toast.error(errorMessage);
+        }
+      }
     },
   });
 
@@ -49,26 +64,6 @@ function SignupPage() {
     event.preventDefault();
     handleSubmit();
   }
-
-  useEffect(() => {
-    if (data && isSuccess) {
-      toast.success("Registered successfully");
-      navigate(DASHBOARD);
-    }
-    if (error) {
-      if (isAxiosError(error) && error?.message === "Network Error") {
-        toast.error("Network error");
-      }
-
-      if (isAxiosError(error) && error.response && error.response.data) {
-        const errorMessage = (error.response.data as { message: string })
-          .message;
-        toast.error(errorMessage);
-      }
-    }
-  }, [isSuccess, error, data]);
-
-  console.log(errors);
 
   return (
     <div className="container flex mx-auto max-w-screen-md items-center h-screen">

@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { User } from "../../redux/slices/userSlice";
 import { AxiosError } from "axios";
 import { RootState } from "../../redux/store";
+import { isSelfProfile } from "../../pages/profilePage";
 
 interface SugProfileType {
   _id: string;
@@ -73,7 +74,7 @@ const SuggestedProfile: React.FC<SugProfileType> = ({
     return error.isAxiosError === true;
   }
 
-  return (
+  return isSelfProfile(user, _id) ? null : (
     <div className="flex flex-row items-center align-items justify-between">
       <Link to={`/p/${userName}/${_id}`}>
         <div className=" flex items-center justify-center">

@@ -2,20 +2,40 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNewPostApi } from "../../apis";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 interface ImageDragAndDropProps {
   closeModal: () => void;
 }
 
-interface SelectedFile {
+export interface SelectedFile {
   file: File;
   dataUrl: string;
 }
+
+export const readFileAsync = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        resolve(reader.result as string);
+      }
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+  });
+};
 
 const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
   const [selectedFile, setSelectedFile] = useState<SelectedFile | null>(null);
 
   const [dragging, setDragging] = useState(false);
+
+  const { user } = useSelector((state: RootState) => state.user);
 
   const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -46,22 +66,6 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
         console.error("Error reading file:", error);
       }
     }
-  };
-
-  const readFileAsync = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          resolve(reader.result as string);
-        }
-      };
-
-      reader.onerror = reject;
-
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -136,8 +140,10 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
         <div className=" w-[100%] sm:w-[40%] p-4 sm:p-0 text-center">
           <div className=" flex items-center mb-1">
             <img
-              src="/images/avatars/dali.jpg"
-              alt="dali"
+              src={
+                user?.avatar ? user.avatar?.url : "/images/avatars/default.png"
+              }
+              alt={user?.name}
               className=" h-7 w-7 rounded-full mr-1"
             />
             <p className=" font-bold text-xs">Sandeep Lakhiwal</p>

@@ -4,10 +4,10 @@ import axios from "axios";
 // const server: string =
 //   "http://ec2-3-6-220-31.ap-south-1.compute.amazonaws.com:5000/api/v1";
 
-const server: string = "http://localhost:5000/api/v1";
+// const server: string = "http://localhost:5000/api/v1";
 
-// const server: string =
-//   "https://anontalks-backend-production.up.railway.app/api/v1";
+const server: string =
+  "https://anontalks-backend-production.up.railway.app/api/v1";
 
 interface loginCredentials {
   email: string;
@@ -206,6 +206,54 @@ export const getUserFollowingsApi = ({ queryKey }: queryKeyParams) => {
 export const getUserFollowersApi = ({ queryKey }: queryKeyParams) => {
   const id: string = queryKey[1];
   return axios.get(`${server}/user/followers/${id}`, {
+    withCredentials: true,
+  });
+};
+
+export interface UpdateNameEmail {
+  newName: string;
+  newEmail: string;
+}
+
+export const updateNameEmailApi = (formData: UpdateNameEmail) => {
+  return axios.put(`${server}/update/profile`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  });
+};
+
+export interface UpdatePassword {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export const updatePasswordApi = (formData: UpdatePassword) => {
+  return axios.put(`${server}/update/password`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  });
+};
+
+interface ChangeAvatar {
+  avatar: string;
+  id: string;
+}
+
+export const changeAvatarApi = (formData: ChangeAvatar) => {
+  return axios.put(`${server}/update/profile/avatar`, formData, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  });
+};
+
+export const deleteMyProfileApi = () => {
+  return axios.delete(`${server}/profile/delete/me`, {
     withCredentials: true,
   });
 };

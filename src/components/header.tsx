@@ -111,7 +111,11 @@ function Header() {
                   <div className="flex items-center cursor-pointer">
                     <Link to={`/p/${user?.name}/${user?._id}`}>
                       <img
-                        src="/images/avatars/dali.jpg"
+                        src={
+                          user?.avatar
+                            ? user.avatar.url
+                            : "/images/avatars/default.png"
+                        }
                         alt="avatar"
                         className="rounded-full h-8 w-8 flex"
                       />

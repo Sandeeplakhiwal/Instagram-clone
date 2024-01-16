@@ -16,6 +16,7 @@ const NotFound = lazy(() => import("./pages/not-found.tsx"));
 const Dashboard = lazy(() => import("./pages/dashboard.tsx"));
 const Search = lazy(() => import("./pages/searchPage.tsx"));
 const Profile = lazy(() => import("./pages/profilePage.tsx"));
+const EditProfile = lazy(() => import("./pages/editProfile.tsx"));
 
 function App() {
   const dispatch = useDispatch();
@@ -56,6 +57,10 @@ function App() {
           <Route
             path={PageRoutes.PROFILE}
             element={isAuthenticated ? <Profile /> : <Login />}
+          />
+          <Route
+            path={PageRoutes.EDIT_PROFILE}
+            element={isAuthenticated ? <EditProfile /> : <Login />}
           />
           <Route path={PageRoutes.NOT_FOUND} element={<NotFound />} />
           <Route path="test" element={<RunningBorder />} />

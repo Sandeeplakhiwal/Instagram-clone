@@ -197,8 +197,12 @@ function ProfilePage() {
         <div id="profile-header" className=" flex mx-auto gap-4 mb-16">
           <div className="  w-1/3 flex justify-center">
             <img
-              src="/images/avatars/dali.jpg"
-              alt="dali"
+              src={
+                userProfile?.avatar
+                  ? userProfile.avatar.url
+                  : "/images/avatars/default.png"
+              }
+              alt={user?.name}
               className=" h-24 w-24 sm:h-32 sm:w-32 rounded-full"
             />
           </div>
@@ -206,9 +210,14 @@ function ProfilePage() {
             <p className=" flex flex-row  w-full gap-2 sm:gap-8 items-end">
               <p className=" items-end">{userProfile && userProfile.name}</p>
               {isSelfProfile(user, id ? id : "") ? (
-                <button className=" bg-[#efefef] rounded px-2 py-1 text-xs">
+                <Link
+                  to={`/p/edit/${userProfile && userProfile.name}/${
+                    userProfile && userProfile._id
+                  }`}
+                  className=" bg-[#efefef] rounded px-2 py-1 text-xs"
+                >
                   Edit profile
-                </button>
+                </Link>
               ) : null}
             </p>
             <p className=" flex flex-row  w-full gap-8">
@@ -302,8 +311,12 @@ function ProfilePage() {
                         onClick={closeFollowingModal}
                       >
                         <img
-                          src="/images/avatars/dali.jpg"
-                          alt="dali"
+                          src={
+                            profile?.avatar
+                              ? profile.avatar.url
+                              : "/images/avatars/default.png"
+                          }
+                          alt={profile?.name}
                           className=" h-8 w-10 rounded-full"
                         />
                       </Link>
@@ -373,8 +386,12 @@ function ProfilePage() {
                         onClick={closeFollowersModal}
                       >
                         <img
-                          src="/images/avatars/dali.jpg"
-                          alt="dali"
+                          src={
+                            profile?.avatar
+                              ? profile.avatar.url
+                              : "/images/avatars/default.png"
+                          }
+                          alt={profile?.name}
                           className=" h-8 w-10 rounded-full"
                         />
                       </Link>

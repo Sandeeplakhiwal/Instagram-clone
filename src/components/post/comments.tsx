@@ -117,8 +117,12 @@ const Comments: FC<CommentsProp> = ({
             <div className="pr-2">
               <Link to={"/"}>
                 <img
-                  src="/images/avatars/dali.jpg"
-                  alt="dali"
+                  src={
+                    item?.user?.avatar
+                      ? item.user.avatar.url
+                      : "/images/avatars/default.png"
+                  }
+                  alt={item?.user?.name}
                   className=" h-6 w-6 rounded-full"
                 />
               </Link>

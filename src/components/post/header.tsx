@@ -15,7 +15,12 @@ interface UserInterface {
   postId: string;
 }
 
-const Header: React.FC<UserInterface> = ({ username, userId, postId }) => {
+const Header: React.FC<UserInterface> = ({
+  username,
+  userId,
+  postId,
+  userAvatar,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false);
   const { user } = useSelector((state: RootState) => state.user);
@@ -171,8 +176,8 @@ const Header: React.FC<UserInterface> = ({ username, userId, postId }) => {
         <div className="flex flex-grow">
           <Link to={`/p/${username}/${userId}`} className=" flex items-center ">
             <img
-              src="/images/avatars/karl.jpg"
-              alt="karl"
+              src={userAvatar ? userAvatar : "/images/avatars/default.png"}
+              alt={username ? username : "avatar"}
               className=" rounded-full h-10 w-10 flex mr-3"
             />
             <p className=" font-bold">{username}</p>
