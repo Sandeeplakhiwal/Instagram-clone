@@ -31,7 +31,7 @@ function TimeLine() {
 
   console.log(user);
   return (
-    <div className=" container col-span-full md:col-span-2 px-3 md:px-0">
+    <div className=" container col-span-full md:col-span-2 px-3 md:px-0 ">
       {user?.following === undefined ? (
         <p></p>
       ) : user?.following.length === 0 && user?.post?.length === 0 ? (

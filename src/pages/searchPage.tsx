@@ -63,6 +63,7 @@ const SearchBar = () => {
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               className="p-2 outline-none rounded-md w-full"
+              autoFocus={true}
             />
             {searchLoading ? <LittleLoader /> : null}
             <button

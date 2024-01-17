@@ -33,7 +33,7 @@ const Post: FC<PostProps> = ({
     <div className=" rounded col-span-4 border bg-white border-gray-primary mb-12">
       <Header
         username={owner?.name}
-        userAvatar={owner?.avatar.url}
+        userAvatar={owner?.avatar?.url}
         userId={owner?._id}
         postId={postId}
       />

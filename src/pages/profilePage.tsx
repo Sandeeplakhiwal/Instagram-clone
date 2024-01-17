@@ -45,10 +45,6 @@ function ProfilePage() {
 
   const [idToFollow, setIdToFollow] = useState<string | undefined>(id);
 
-  useEffect(() => {
-    document.title = user ? user.name : "";
-  });
-
   const isFollowing = (userId: string): boolean => {
     let check = -1;
     if (user) {
@@ -70,6 +66,10 @@ function ProfilePage() {
     queryKey: ["user-profile", id ? id : ""],
     queryFn: getUserProfileApi,
   });
+
+  useEffect(() => {
+    document.title = userProfile ? userProfile.name : "";
+  }, [userProfile, userProfileData]);
 
   const {
     data: userPostsData,

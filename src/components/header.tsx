@@ -37,7 +37,7 @@ function Header() {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0">
+    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0 max-w-screen-2xl mx-auto">
       <div className="container mx-auto max-w-screen-lg h-full">
         <div className="flex justify-between w-full h-full">
           <div className="text-gray-700 text-center flex items-center align-middle cursor-pointer">
@@ -47,6 +47,7 @@ function Header() {
                   src="/images/logo.png"
                   alt="Instagram"
                   className="mt-2 w-6/12"
+                  title="instagram-logo"
                 />
               </Link>
             </h1>

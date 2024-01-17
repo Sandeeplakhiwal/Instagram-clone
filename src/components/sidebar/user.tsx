@@ -16,16 +16,16 @@ const User: React.FC<UserProps> = ({ username, fullName, userId }) => {
   ) : (
     <Link
       to={`/p/${username}/${userId}`}
-      className="grid grid-cols-4 gap-4 mb-6 items-center"
+      className="flex flex-row gap-2 mb-6 items-center"
     >
-      <div className="flex items-center justify-between col-span-1">
+      <div className="flex items-center  ">
         <img
           src={user?.avatar ? user.avatar?.url : "/images/avatars/default.png"}
           alt={user?.name}
-          className=" rounded-full w-16 flex mr-3"
+          className=" rounded-full h-16 w-16 flex"
         />
       </div>
-      <div className=" col-span-3">
+      <div className=" ">
         <p className=" font-bold text-sm">{username}</p>
         <p className=" text-sm">{fullName}</p>
       </div>

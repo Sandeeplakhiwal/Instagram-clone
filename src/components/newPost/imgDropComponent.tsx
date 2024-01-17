@@ -146,7 +146,7 @@ const ImageDragAndDrop: FC<ImageDragAndDropProps> = ({ closeModal }) => {
               alt={user?.name}
               className=" h-7 w-7 rounded-full mr-1"
             />
-            <p className=" font-bold text-xs">Sandeep Lakhiwal</p>
+            <p className=" font-bold text-xs">{user?.name}</p>
           </div>
           <form className=" flex flex-col gap-4">
             <textarea
