@@ -5,3 +5,5 @@ export const DASHBOARD: string = "/";
 export const SEARCH: string = "/search";
 export const EDIT_PROFILE: string = "/p/edit/:username/:id";
 export const NOT_FOUND: string = "*";
+export const INBOX: string = "/direct/inbox";
+export const DIRECT: string = "/direct/t/:id";

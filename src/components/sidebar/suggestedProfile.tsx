@@ -44,7 +44,6 @@ const SuggestedProfile: React.FC<SugProfileType> = ({
   const { user } = useSelector((state: RootState) => state.user);
 
   const handleFollowBtn = (_id: string) => {
-    console.log("Now Following");
     followUserRefetch();
   };
 

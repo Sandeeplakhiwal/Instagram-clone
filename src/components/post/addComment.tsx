@@ -26,8 +26,6 @@ function AddComment({ setComments, postId }: AddCommentProps) {
     enabled: false,
   });
 
-  console.log(updatedComments);
-
   const {
     data,
     error,

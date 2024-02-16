@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import * as PageRoutes from "../constants/routes";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
@@ -6,17 +6,51 @@ import { removeUser } from "../redux/slices/userSlice";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { logoutApi } from "../apis";
 import { RootState } from "../redux/store";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { io } from "socket.io-client";
+import { Message } from "./inbox/directMessageBox";
+import { increaseMessagesCount } from "../redux/slices/messagesSlice";
+import { addNewMessage } from "../redux/slices/exampleSlice";
+import {
+  getUserMessagesIndex,
+  getUserMessagesSenderIndex,
+} from "../pages/direct";
 
-function Header() {
+export const socket = io("https://instagramsocialmedia.vercel.app");
+
+interface HeaderProps {
+  setMessages?: Dispatch<SetStateAction<Message[]>>;
+}
+
+const Header: FC<HeaderProps> = ({ setMessages }) => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
-
-  console.log(isAuthenticated, user);
-
+  const { messagesCount } = useSelector((state: RootState) => state.message);
+  const [isOnline, setIsOnline] = useState<boolean>(false);
+  console.log(isOnline);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { id } = useParams();
+
+  const userMessagesInRedux = useSelector(
+    (state: RootState) =>
+      state.example.userMessages[
+        getUserMessagesIndex(state.example.userMessages, user ? user._id : "")
+      ]?.messages[
+        getUserMessagesSenderIndex(
+          state.example.userMessages[
+            getUserMessagesIndex(
+              state.example.userMessages,
+              user ? user._id : ""
+            )
+          ].messages,
+          id ? id : ""
+        )
+      ]?.contents
+  );
 
   const { refetch: logoutRefetch } = useQuery({
     queryKey: ["logout"],
@@ -36,8 +70,48 @@ function Header() {
     }
   };
 
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected", socket.id);
+      setIsOnline(true);
+    });
+
+    if (isAuthenticated) {
+      socket.emit("user_connected", user?._id);
+    }
+
+    return () => {
+      setIsOnline(false);
+    };
+  }, [user, isAuthenticated]);
+
+  useEffect(() => {
+    const handlePrivateMessageReceive = (data: Message) => {
+      // dispatch(addMessage(data));
+      dispatch(
+        addNewMessage({
+          sender: data.sender,
+          recipient: data.recipient,
+          content: data.content,
+          createdAt: data.createdAt,
+          userId: user ? user._id : "",
+        })
+      );
+      dispatch(increaseMessagesCount(data.sender));
+      if (setMessages) {
+        setMessages(userMessagesInRedux);
+      }
+    };
+
+    socket.on("private_message_receive", handlePrivateMessageReceive);
+
+    return () => {
+      socket.off("private_message_receive", handlePrivateMessageReceive);
+    };
+  }, [dispatch]);
+
   return (
-    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0 max-w-screen-2xl mx-auto">
+    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0 max-w-screen-2xl mx-auto z-50">
       <div className="container mx-auto max-w-screen-lg h-full">
         <div className="flex justify-between w-full h-full">
           <div className="text-gray-700 text-center flex items-center align-middle cursor-pointer">
@@ -86,6 +160,48 @@ function Header() {
                       d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
                     />
                   </svg>
+                </Link>
+                <Link to={PageRoutes.INBOX} className=" mr-2">
+                  <div className=" relative">
+                    {messagesCount.length >= 1 ? (
+                      <span className=" absolute bottom-3 left-3 bg-red-primary rounded-full px-1 text-xs text-white  ">
+                        {messagesCount.length}
+                      </span>
+                    ) : null}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
+                      />
+                      {/* <circle
+                      cx="18"
+                      cy="6"
+                      r="5"
+                      fill="white"
+                      stroke="white"
+                      stroke-width="1"
+                    /> */}
+                      {/* <text
+                      x="16"
+                      y="10"
+                      fill="red"
+                      font-size="15"
+                      font-weight="bold"
+                      stroke="red"
+                      stroke-width="1"
+                    >
+                      16
+                    </text> */}
+                    </svg>
+                  </div>
                 </Link>
                 <button
                   type="button"
@@ -149,6 +265,6 @@ function Header() {
       </div>
     </header>
   );
-}
+};
 
 export default Header;

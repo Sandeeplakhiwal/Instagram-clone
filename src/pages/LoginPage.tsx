@@ -41,7 +41,6 @@ function LoginPage() {
       initialValues,
       validationSchema: loginSchema,
       onSubmit: (values, action) => {
-        console.log(values);
         mutateAsync(values);
         action.resetForm();
       },
@@ -49,7 +48,6 @@ function LoginPage() {
 
   async function submitHandler(event: FormEvent) {
     event.preventDefault();
-    console.log("Submitted");
     handleSubmit();
   }
 

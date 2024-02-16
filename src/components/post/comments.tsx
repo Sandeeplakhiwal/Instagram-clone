@@ -148,9 +148,7 @@ const Comments: FC<CommentsProp> = ({
                   onClick={() => {
                     setModalOpen(true);
                     setCommentId(item._id);
-                    console.log("1", item._id);
                     setOwnerId(item.user._id);
-                    console.log("2", item.user._id);
                   }}
                 >
                   <path

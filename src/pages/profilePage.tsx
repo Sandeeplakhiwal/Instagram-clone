@@ -141,7 +141,6 @@ function ProfilePage() {
   useEffect(() => {
     if (followersData && followersSuccess) {
       setUserFollowers(followersData?.data?.followers);
-      // console.log(followersData?.data?.followers);
     }
   }, [followersData, followersSuccess]);
 

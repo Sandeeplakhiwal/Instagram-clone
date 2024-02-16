@@ -37,7 +37,6 @@ const SearchBar = () => {
   };
 
   const handleSearch = () => {
-    console.log(searchQuery);
     searchRefetch();
   };
 

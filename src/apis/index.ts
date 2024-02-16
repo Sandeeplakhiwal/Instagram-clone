@@ -4,7 +4,7 @@ import axios from "axios";
 // const server: string =
 //   "http://ec2-3-6-220-31.ap-south-1.compute.amazonaws.com:5000/api/v1";
 
-// const server: string = "http://localhost:5000/api/v1";
+// export const server: string = "http://localhost:5000/api/v1";
 
 const server: string =
   "https://anontalks-backend-production.up.railway.app/api/v1";
@@ -105,7 +105,6 @@ export const getPopularFollowSuggestionsApi = () => {
 
 export const followUserApi = ({ queryKey }: queryKeyParams) => {
   const userId = queryKey[1];
-  console.log("userId", userId);
   return axios.get(`${server}/follow/${userId}`, {
     withCredentials: true,
   });
@@ -164,7 +163,6 @@ export const updateCaptionApi = (formData: UpdateCaption) => {
 
 export const searchUserProfile = ({ queryKey }: queryKeyParams) => {
   const keyword = queryKey[1];
-  console.log("keyword", keyword);
   return axios.get(`${server}/profile/search?keyword=${keyword}`, {
     withCredentials: true,
   });
@@ -256,4 +254,9 @@ export const deleteMyProfileApi = () => {
   return axios.delete(`${server}/profile/delete/me`, {
     withCredentials: true,
   });
+};
+
+export const getUserNameByIdApi = ({ queryKey }: queryKeyParams) => {
+  const id = queryKey[1];
+  return axios.get(`${server}/username/${id}`);
 };

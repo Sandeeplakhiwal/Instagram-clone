@@ -15,6 +15,8 @@ const SignUp = lazy(() => import("./pages/SignupPage.tsx"));
 const NotFound = lazy(() => import("./pages/not-found.tsx"));
 const Dashboard = lazy(() => import("./pages/dashboard.tsx"));
 const Search = lazy(() => import("./pages/searchPage.tsx"));
+const Inbox = lazy(() => import("./pages/inbox.tsx"));
+const DirectMessage = lazy(() => import("./pages/direct.tsx"));
 const Profile = lazy(() => import("./pages/profilePage.tsx"));
 const EditProfile = lazy(() => import("./pages/editProfile.tsx"));
 
@@ -53,6 +55,14 @@ function App() {
           <Route
             path={PageRoutes.SEARCH}
             element={isAuthenticated ? <Search /> : <Login />}
+          />
+          <Route
+            path={PageRoutes.INBOX}
+            element={isAuthenticated ? <Inbox /> : <Login />}
+          />
+          <Route
+            path={PageRoutes.DIRECT}
+            element={isAuthenticated ? <DirectMessage /> : <Login />}
           />
           <Route
             path={PageRoutes.PROFILE}
