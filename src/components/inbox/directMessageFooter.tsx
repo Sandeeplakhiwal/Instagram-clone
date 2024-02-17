@@ -6,6 +6,9 @@ import { addNewMessage } from "../../redux/slices/exampleSlice";
 import { socket } from "../header";
 import { useParams } from "react-router-dom";
 
+// Sound file
+// import sendMessageSound from "../../../public/sounds/sendMessageSound.mp3";
+
 interface DirectMessageFooterProps {
   setMessages: Dispatch<SetStateAction<Message[]>>;
 }
@@ -16,6 +19,9 @@ const DirectMessageFooter: FC<DirectMessageFooterProps> = ({ setMessages }) => {
   const { user } = useSelector((state: RootState) => state.user);
 
   const { id } = useParams();
+
+  // Audio element for the send message sound
+  const sendSound = new Audio("/sounds/sendMessageSound.mp3");
 
   const sendMessageHandler = () => {
     if (inputText.trim()) {
@@ -44,6 +50,9 @@ const DirectMessageFooter: FC<DirectMessageFooterProps> = ({ setMessages }) => {
           createdAt: newMessage.createdAt,
         })
       );
+
+      // Play the send message sound
+      sendSound.play();
     }
 
     // Clear the input text

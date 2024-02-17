@@ -86,6 +86,9 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
     };
   }, [user, isAuthenticated]);
 
+  const receiveSound = new Audio("/sounds/receiveMessageSound.mp3");
+  const notificationAudio = new Audio("/sounds/notificationSound.mp3");
+
   useEffect(() => {
     const handlePrivateMessageReceive = (data: Message) => {
       // dispatch(addMessage(data));
@@ -101,6 +104,31 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
       dispatch(increaseMessagesCount(data.sender));
       if (setMessages) {
         setMessages(userMessagesInRedux);
+      }
+      // Play the receive message sound
+      receiveSound.play();
+
+      // Send notification with custom sound
+      if (Notification.permission === "granted") {
+        new Notification("New Message", {
+          body: `You have received a new message`,
+          silent: true,
+          icon: "/favicon.ico",
+          timestamp: Date.now(),
+        });
+        notificationAudio.play();
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            new Notification("New Message", {
+              body: `You have received a new message`,
+              silent: true,
+              icon: "/favicon.ico",
+              timestamp: Date.now(),
+            });
+            notificationAudio.play();
+          }
+        });
       }
     };
 
