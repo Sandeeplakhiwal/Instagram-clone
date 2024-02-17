@@ -72,7 +72,7 @@ function NewMessageBox() {
       >
         Send message
       </button>
-      <Modal isOpen={isOpen} onClose={handleCloseModal}>
+      <NewMessageModal isOpen={isOpen} onClose={handleCloseModal}>
         <div className=" flex px-2 flex-row flex-wrap border-b border-gray-primary">
           <p className=" font-semibold text-lg mr-1 p-2">To:</p>
           {messageTo.username ? (
@@ -180,14 +180,14 @@ function NewMessageBox() {
             </Link>
           </div>
         </div>
-      </Modal>
+      </NewMessageModal>
     </div>
   );
 }
 
 export default NewMessageBox;
 
-const Modal: React.FC<{
+export const NewMessageModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;

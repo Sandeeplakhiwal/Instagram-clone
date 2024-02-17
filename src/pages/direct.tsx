@@ -68,9 +68,9 @@ function DirectMessage() {
     <>
       <Header setMessages={setMessages} />
       <div className=" flex flex-row sm:px-2 max-w-screen-2xl mx-auto overflow-hidden overflow-y-hidden lg:h-[87vh] md:h-[88vh] sm:h-screen h-[85vh] -mt-2">
-        <div className=" h-screen w-3/12 bg-white pt-2 border border-gray-primary ">
+        <div className=" h-screen w-3/12 bg-white pt-2 border border-gray-primary hidden sm:block ">
           <div className=" px-2 flex flex-row items-center sm:justify-between justify-center mb-2">
-            <p className="font-bold text-[14px] hidden sm:block ">
+            <p className="font-bold text-[14px] underline hidden sm:block ">
               {user && user.name}
             </p>
             <svg

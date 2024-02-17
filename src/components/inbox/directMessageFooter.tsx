@@ -71,7 +71,7 @@ const DirectMessageFooter: FC<DirectMessageFooterProps> = ({ setMessages }) => {
       />
       {inputText ? (
         <button
-          className={`text-blue-medium absolute right-8 font-bold top-5`}
+          className={`text-blue-medium absolute right-8 font-bold top-5 z-50`}
           onClick={sendMessageHandler}
         >
           Send

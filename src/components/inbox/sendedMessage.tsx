@@ -32,7 +32,7 @@ const SendedMessage: FC<SendedMessageProps> = ({ message }) => {
 
   return (
     <div
-      className=" flex flex-row justify-end my-2 py-2 items-center"
+      className=" flex flex-row justify-end my-2 py-2 items-center "
       onMouseOver={() => setMoVisible("visible")}
       onMouseLeave={() => {
         setMoVisible("invisible");
@@ -50,7 +50,9 @@ const SendedMessage: FC<SendedMessageProps> = ({ message }) => {
           createdAt={message.createdAt}
         />
       </div>
-      <div className={` bg-[#0080ff] px-2 py-1 rounded-2xl cursor-default`}>
+      <div
+        className={` bg-[#0080ff] px-2 py-1 rounded-2xl cursor-default max-w-[80%]`}
+      >
         <p className=" text-white text-sm font-semibold ">{message.content}</p>
       </div>
     </div>

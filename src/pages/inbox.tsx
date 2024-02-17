@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import Header from "../components/header";
 import { Message } from "../components/inbox/directMessageBox";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import DirectMessageSidebar from "../components/inbox/directMessageSidebar";
-import NewMessageBox from "../components/inbox/newMessageBox";
+import NewMessageBox, {
+  NewMessageModal,
+} from "../components/inbox/newMessageBox";
+import { useQuery } from "@tanstack/react-query";
+import { searchUserProfile } from "../apis";
+import ZigZagLoader from "../components/zigZagLoader";
+import { Link } from "react-router-dom";
+import { User } from "../redux/slices/userSlice";
 
 function Inbox() {
   useEffect(() => {
@@ -19,13 +26,64 @@ function Inbox() {
   const [messages, setMessages] = useState<Message[]>(messagesInRedux);
   console.log(messages);
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [profiles, setProfiles] = useState<User[] | []>([]);
+  const [messageTo, setMessageTo] = useState({
+    username: "",
+    userId: "",
+  });
+
+  const {
+    data: searchData,
+    error: searchError,
+    refetch: searchRefetch,
+    isSuccess: searchSuccess,
+    isLoading: searchLoading,
+  } = useQuery({
+    queryKey: ["search", searchText],
+    queryFn: searchUserProfile,
+    enabled: false,
+  });
+
+  const handleOpenModal = () => {
+    setIsOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsOpen(false);
+  };
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchText(event.target.value);
+    setTimeout(() => {
+      searchRefetch();
+    }, 500);
+  };
+
+  const handleSearch = () => {
+    searchRefetch();
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  useEffect(() => {
+    if (searchSuccess && searchData) {
+      setProfiles(searchData?.data?.users);
+    }
+  }, [searchSuccess, searchData, searchError]);
+
   return (
     <>
       <Header setMessages={setMessages} />
       <div className=" flex flex-row sm:px-2 max-w-screen-2xl mx-auto overflow-hidden overflow-y-hidden lg:h-[87vh] md:h-[88vh] sm:h-screen h-[85vh] -mt-2">
-        <div className=" h-screen w-3/12 bg-white pt-2 border border-gray-primary ">
-          <div className=" px-2 flex flex-row items-center sm:justify-between justify-center mb-2">
-            <p className="font-bold text-[14px] hidden sm:block ">
+        <div className=" h-screen sm:w-3/12 w-full bg-white pt-2 border border-gray-primary ">
+          <div className=" px-2 flex flex-row items-center justify-between  mb-2">
+            <p className="font-bold text-[14px] underline ">
               {user && user.name}
             </p>
             <svg
@@ -35,6 +93,7 @@ function Inbox() {
               stroke-width="1.5"
               stroke="currentColor"
               className="w-6 h-6 cursor-default"
+              onClick={handleOpenModal}
             >
               <path
                 stroke-linecap="round"
@@ -43,7 +102,7 @@ function Inbox() {
               />
             </svg>
           </div>
-          <div className=" py-2 pl-2 hidden sm:block">
+          <div className=" py-2 pl-2">
             <p className=" font-bold text-[13px] ">Messages</p>
           </div>
           <div
@@ -53,10 +112,119 @@ function Inbox() {
             <DirectMessageSidebar />
           </div>
         </div>
-        <div className=" flex flex-grow h-full">
+        <div className=" sm:flex flex-grow h-full hidden">
           <NewMessageBox />
         </div>
       </div>
+      <NewMessageModal isOpen={isOpen} onClose={handleCloseModal}>
+        <div className=" flex px-2 flex-row flex-wrap border-b border-gray-primary">
+          <p className=" font-semibold text-lg mr-1 p-2">To:</p>
+          {messageTo.username ? (
+            <div className=" px-1 py-1 h-7 my-auto flex flex-row gap-1 rounded-xl text-[#0095f6] bg-[#efefef] font-semibold items-center">
+              <p className=" text-sm cursor-default hover:text-[#000000]">
+                {messageTo.username}
+              </p>
+              <button
+                onClick={() => setMessageTo({ userId: "", username: "" })}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="2.0"
+                  stroke="currentColor"
+                  className="w-4 h-5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : null}
+          <input
+            type={"search"}
+            className=" flex flex-1 px-2 outline-none"
+            placeholder="Search.."
+            onKeyPress={handleKeyPress}
+            autoFocus={true}
+            value={searchText}
+            onChange={(e) => handleInputChange(e)}
+          />
+          {searchLoading ? <ZigZagLoader /> : null}
+          <button onClick={handleSearch} type="button"></button>
+        </div>
+        <div className=" py-4 w-full ">
+          <div className=" h-[30vh] overflow-y-scroll w-full ">
+            <ul className="flex flex-col bg-white m-1 rounded-md w-11/12 mx-auto">
+              {searchText && profiles.length === 0 ? (
+                <p className=" px-5">No account found</p>
+              ) : (
+                profiles.map((profile) => (
+                  <li
+                    key={profile?._id}
+                    className=" w-full cursor-pointer flex justify-between rounded p-2 items-center  mb-1 hover:bg-[#efefef]"
+                    onClick={() => {
+                      setMessageTo({
+                        userId: profile._id,
+                        username: profile.name,
+                      });
+                      setSearchText("");
+                      setProfiles([]);
+                    }}
+                  >
+                    <div className=" flex flex-row items-center gap-2">
+                      <div>
+                        <img
+                          src={
+                            profile?.avatar
+                              ? profile.avatar?.url
+                              : "/images/avatars/default.png"
+                          }
+                          alt={profile?.name}
+                          className=" h-8 w-8 rounded-full"
+                        />
+                      </div>
+                      <p className=" flex-1 text-xs">{profile?.name}</p>
+                    </div>
+                    {/* <button className=" rounded-full  border border-gray-primary">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="m4.5 12.75 6 6 9-13.5"
+                        />
+                      </svg>
+                    </button> */}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+          <div className=" px-5 mx-auto">
+            <Link
+              to={`/direct/t/${messageTo.userId}`}
+              onClick={(e) => (!messageTo.userId ? e.preventDefault() : null)}
+            >
+              <button
+                className=" w-full bg-[#0095f6] hover:bg-[#0787db] text-white font-bold px-4 py-2 text-center text-sm rounded-md mt-2 tracking-wide disabled:bg-[#b2dcf7] "
+                disabled={messageTo.userId ? false : true}
+              >
+                Chat
+              </button>
+            </Link>
+          </div>
+        </div>
+      </NewMessageModal>
     </>
   );
 }

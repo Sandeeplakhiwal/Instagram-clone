@@ -22,7 +22,7 @@ function DirectMessageSidebar() {
               <InboxMessangerProfile key={index} message={msg} />
             </Link>
           ))}
-          <p className=" text-xs font-bold m-2 hidden sm:block">Suggestions</p>
+          <p className=" text-xs font-bold m-2">Suggestions</p>
           {user &&
             user.following.map((profile: User, index) => (
               <Link to={`/direct/t/${profile._id}`}>

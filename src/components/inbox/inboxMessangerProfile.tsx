@@ -33,9 +33,9 @@ const InboxMessangerProfile: FC<InboxMessangerProfileProps> = ({ message }) => {
     }
   }, [data, isSuccess]);
   return (
-    <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-center sm:justify-start">
+    <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-start">
       <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
-      <div className="hidden sm:block">
+      <div>
         <p className=" flex flex-col font-semibold">
           <p className=" text-xs">{username}</p>
           <p
@@ -86,9 +86,9 @@ export const InboxMessangerSuggestedProfile: FC<{ userId: string }> = ({
     }
   }, [data, isSuccess]);
   return (
-    <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-center sm:justify-start">
+    <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-start">
       <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
-      <div className="hidden sm:block">
+      <div>
         <p className=" flex flex-col font-semibold">
           <p className=" text-xs">{username}</p>
         </p>

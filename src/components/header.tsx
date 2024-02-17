@@ -16,7 +16,8 @@ import {
   getUserMessagesSenderIndex,
 } from "../pages/direct";
 
-export const socket = io("https://instagramsocialmedia.vercel.app");
+// export const socket = io("https://anontalks-backend-production.up.railway.app");
+export const socket = io("http://localhost:5000");
 
 interface HeaderProps {
   setMessages?: Dispatch<SetStateAction<Message[]>>;
@@ -111,7 +112,7 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
   }, [dispatch]);
 
   return (
-    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0 max-w-screen-2xl mx-auto z-50">
+    <header className="h-16 bg-white border-b border-gray-primary mb-2 sticky top-0 max-w-screen-2xl mx-auto z-50 pr-1">
       <div className="container mx-auto max-w-screen-lg h-full">
         <div className="flex justify-between w-full h-full">
           <div className="text-gray-700 text-center flex items-center align-middle cursor-pointer">

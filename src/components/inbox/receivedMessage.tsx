@@ -48,7 +48,7 @@ const ReceivedMessage: FC<ReceivedMessageProps> = ({ message, avatar }) => {
 
   return (
     <div
-      className=" flex flex-row justify-start my-2 py-2 items-center"
+      className=" flex flex-row justify-start my-2 py-2 items-center max-w-[80%]"
       onMouseOver={() => setMoVisible("visible")}
       onMouseLeave={() => {
         setMoVisible("invisible");
