@@ -219,7 +219,10 @@ const Actions: FC<ActionProps> = ({
             <ul>
               {likedBy.length > 0 ? (
                 likedBy.map((profile: User) => (
-                  <li className=" flex gap-2 text-xs font-semibold mb-6">
+                  <li
+                    key={profile._id}
+                    className=" flex gap-2 text-xs font-semibold mb-6"
+                  >
                     <div>
                       <Link
                         to={`/p/${profile?.name}/${profile?._id}`}

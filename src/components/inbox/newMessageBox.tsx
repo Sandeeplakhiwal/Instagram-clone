@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { User } from "../../redux/slices/userSlice";
 import ZigZagLoader from "../zigZagLoader";
 import { Link } from "react-router-dom";
+import { ProfileShowcaseComponent } from "../../pages/inbox";
 
 function NewMessageBox() {
   const [isOpen, setIsOpen] = useState(false);
@@ -131,36 +132,7 @@ function NewMessageBox() {
                       setProfiles([]);
                     }}
                   >
-                    <div className=" flex flex-row items-center gap-2">
-                      <div>
-                        <img
-                          src={
-                            profile?.avatar
-                              ? profile.avatar?.url
-                              : "/images/avatars/default.png"
-                          }
-                          alt={profile?.name}
-                          className=" h-8 w-8 rounded-full"
-                        />
-                      </div>
-                      <p className=" flex-1 text-xs">{profile?.name}</p>
-                    </div>
-                    {/* <button className=" rounded-full  border border-gray-primary">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="m4.5 12.75 6 6 9-13.5"
-                        />
-                      </svg>
-                    </button> */}
+                    <ProfileShowcaseComponent profile={profile} />
                   </li>
                 ))
               )}

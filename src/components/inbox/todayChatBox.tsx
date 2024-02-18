@@ -20,8 +20,6 @@ const TodayChatBox: FC<TodayChatBoxProps> = ({ messages, setMessages }) => {
   const [username, setUsername] = useState("");
   const [avatar, setAvatar] = useState("/images/avatars/default.png");
 
-  console.log(avatar);
-
   useEffect(() => {
     if (data && isSuccess) {
       setUsername(data.data.username);

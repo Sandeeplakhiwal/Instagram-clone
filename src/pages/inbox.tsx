@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, FC, useEffect, useState } from "react";
 import Header from "../components/header";
 import { Message } from "../components/inbox/directMessageBox";
 import { useSelector } from "react-redux";
@@ -12,6 +12,7 @@ import { searchUserProfile } from "../apis";
 import ZigZagLoader from "../components/zigZagLoader";
 import { Link } from "react-router-dom";
 import { User } from "../redux/slices/userSlice";
+import { OnlineUser } from "../redux/slices/onlineUserSlice";
 
 function Inbox() {
   useEffect(() => {
@@ -24,7 +25,6 @@ function Inbox() {
     (state: RootState) => state.message.messages
   );
   const [messages, setMessages] = useState<Message[]>(messagesInRedux);
-  console.log(messages);
 
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -79,7 +79,7 @@ function Inbox() {
 
   return (
     <>
-      <Header setMessages={setMessages} />
+      <Header messages={messages} setMessages={setMessages} />
       <div className=" flex flex-row sm:px-2 max-w-screen-2xl mx-auto overflow-hidden overflow-y-hidden lg:h-[87vh] md:h-[88vh] sm:h-screen h-[85vh] -mt-2">
         <div className=" h-screen sm:w-3/12 w-full bg-white pt-2 border border-gray-primary ">
           <div className=" px-2 flex flex-row items-center justify-between  mb-2">
@@ -175,36 +175,7 @@ function Inbox() {
                       setProfiles([]);
                     }}
                   >
-                    <div className=" flex flex-row items-center gap-2">
-                      <div>
-                        <img
-                          src={
-                            profile?.avatar
-                              ? profile.avatar?.url
-                              : "/images/avatars/default.png"
-                          }
-                          alt={profile?.name}
-                          className=" h-8 w-8 rounded-full"
-                        />
-                      </div>
-                      <p className=" flex-1 text-xs">{profile?.name}</p>
-                    </div>
-                    {/* <button className=" rounded-full  border border-gray-primary">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="m4.5 12.75 6 6 9-13.5"
-                        />
-                      </svg>
-                    </button> */}
+                    <ProfileShowcaseComponent profile={profile} />
                   </li>
                 ))
               )}
@@ -230,3 +201,51 @@ function Inbox() {
 }
 
 export default Inbox;
+
+interface ProfileShowcaseComponentProp {
+  profile: User;
+}
+
+export const ProfileShowcaseComponent: FC<ProfileShowcaseComponentProp> = ({
+  profile,
+}) => {
+  const [userOnlineStatus, setUserOnlineStatus] = useState(false);
+  const { onlineUsers } = useSelector((state: RootState) => state.onlineUsers);
+  useEffect(() => {
+    function handleOnlineUser(onlineUsers: OnlineUser[]) {
+      let userEntry = onlineUsers.find((entry) => entry.userId === profile._id);
+      if (userEntry && userEntry.timing.to) {
+        // let userTiming = formatDistance(userEntry.timing.to, new Date());
+        return false;
+      } else if (
+        userEntry &&
+        userEntry.timing.from &&
+        userEntry.timing.to === ""
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    setUserOnlineStatus(() => handleOnlineUser(onlineUsers));
+  }, [onlineUsers, profile._id]);
+  return (
+    <div className=" flex flex-row items-center gap-2">
+      <div className=" rounded-full relative">
+        <img
+          src={
+            profile?.avatar
+              ? profile.avatar?.url
+              : "/images/avatars/default.png"
+          }
+          alt={profile?.name}
+          className=" h-8 w-8 rounded-full"
+        />
+        {userOnlineStatus && (
+          <div className=" bg-[#12AD2B] h-[10px] w-[10px] rounded-full absolute right-0 bottom-1 border border-white " />
+        )}
+      </div>
+      <p className=" flex-1 text-xs">{profile?.name}</p>
+    </div>
+  );
+};

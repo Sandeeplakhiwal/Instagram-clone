@@ -43,7 +43,7 @@ function TimeLine() {
             </h3>
           ) : null}
           {followingPostsData?.data?.posts?.map((post: PostTypes) => (
-            <Suspense>
+            <Suspense key={post._id}>
               <Post
                 key={post._id}
                 image={post.image}

@@ -2,6 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getUserNameByIdApi } from "../../apis";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
+import { OnlineUser } from "../../redux/slices/onlineUserSlice";
+import { formatDistance } from "date-fns";
 
 function DirectMessageHeader() {
   const { id } = useParams();
@@ -9,10 +13,25 @@ function DirectMessageHeader() {
     queryKey: ["get-username-by-id", id ? id : ""],
     queryFn: getUserNameByIdApi,
   });
+  const { onlineUsers } = useSelector((state: RootState) => state.onlineUsers);
   const [username, setUsername] = useState("");
+  const [userStatus, setUserStatus] = useState("");
   const [avatar, setAvatar] = useState("/images/avatars/default.png");
 
-  console.log(avatar);
+  useEffect(() => {
+    function handleOnlineUser(onlineUsers: OnlineUser[]) {
+      let userEntry = onlineUsers.find((entry) => entry.userId === id);
+      if (userEntry && userEntry.timing.to) {
+        let userTiming = formatDistance(userEntry.timing.to, new Date());
+        return `Active ${userTiming} ago`;
+      } else if (userEntry && userEntry.timing.from && !userEntry.timing.to) {
+        return "Online";
+      } else {
+        return "";
+      }
+    }
+    setUserStatus(() => handleOnlineUser(onlineUsers));
+  }, [onlineUsers]);
 
   useEffect(() => {
     if (data && isSuccess) {
@@ -26,10 +45,11 @@ function DirectMessageHeader() {
     <div className=" bg-white w-full h-12 flex flex-row items-center px-2 justify-between border border-gray-primary">
       <div className=" flex items-center">
         <Link to={`/p/${username}/${id}`}>
-          <img src={avatar} alt={username} className=" h-8 w-8 rounded-full" />
+          <img src={avatar} alt={username} className=" h-9 w-9 rounded-full" />
         </Link>
         <Link to={`/p/${username}/${id}`}>
           <p className=" font-semibold ml-2 text-sm">{username}</p>
+          <p className=" text-xs text-gray-base ml-2">{userStatus}</p>
         </Link>
       </div>
       <div>

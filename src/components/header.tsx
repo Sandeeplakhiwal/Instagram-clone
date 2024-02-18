@@ -6,7 +6,7 @@ import { removeUser } from "../redux/slices/userSlice";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { logoutApi } from "../apis";
 import { RootState } from "../redux/store";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect } from "react";
 import { io } from "socket.io-client";
 import { Message } from "./inbox/directMessageBox";
 import { increaseMessagesCount } from "../redux/slices/messagesSlice";
@@ -15,21 +15,33 @@ import {
   getUserMessagesIndex,
   getUserMessagesSenderIndex,
 } from "../pages/direct";
+import {
+  addUserOnlineTiming,
+  removeUserOnlineTiming,
+} from "../redux/slices/onlineUserSlice";
 
-// export const socket = io("https://anontalks-backend-production.up.railway.app");
-export const socket = io("http://localhost:5000");
+export const socket = io("https://anontalks-backend-production.up.railway.app");
+// export const socket = io("http://localhost:5000");
 
 interface HeaderProps {
   setMessages?: Dispatch<SetStateAction<Message[]>>;
+  messages?: Message[];
 }
+
+type UserEntry = {
+  userId: string;
+  socketId?: string;
+  timing: {
+    from: string;
+    to: string;
+  };
+};
 
 const Header: FC<HeaderProps> = ({ setMessages }) => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
   const { messagesCount } = useSelector((state: RootState) => state.message);
-  const [isOnline, setIsOnline] = useState<boolean>(false);
-  console.log(isOnline);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -73,16 +85,49 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
 
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected", socket.id);
-      setIsOnline(true);
+      console.log("connected", socket.id);
     });
 
     if (isAuthenticated) {
       socket.emit("user_connected", user?._id);
     }
 
+    // Listen for user_online event
+    socket.on("user_online", (userEntry: UserEntry) => {
+      dispatch(
+        addUserOnlineTiming({
+          userId: userEntry.userId,
+          from: userEntry.timing?.from,
+          to: userEntry.timing.to,
+        })
+      );
+    });
+
+    // Listen for online_users event
+    socket.on("online_users", (onlineUsers: UserEntry[]) => {
+      onlineUsers.forEach((entry) =>
+        dispatch(
+          addUserOnlineTiming({
+            userId: entry.userId,
+            from: entry.timing.from,
+            to: entry.timing.to,
+          })
+        )
+      );
+    });
+
+    // Listen for user_offline event
+    socket.on("user_offline", (userEntry: UserEntry) => {
+      dispatch(
+        removeUserOnlineTiming({
+          userId: userEntry.userId,
+          to: userEntry.timing.to ? userEntry.timing.to : "",
+        })
+      );
+    });
+
     return () => {
-      setIsOnline(false);
+      console.log("Offline");
     };
   }, [user, isAuthenticated]);
 

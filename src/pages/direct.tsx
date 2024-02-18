@@ -45,8 +45,6 @@ function DirectMessage() {
       ]?.contents
   );
 
-  console.log("userMessagesInRedux", userMessagesInRedux);
-
   const [messages, setMessages] = useState<Message[]>(
     userMessagesInRedux || []
   );

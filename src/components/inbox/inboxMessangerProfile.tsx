@@ -5,6 +5,7 @@ import { getUserNameByIdApi } from "../../apis";
 import { RootState } from "../../redux/store";
 import { useSelector } from "react-redux";
 import { formatDistanceToNowStrict } from "date-fns";
+import { OnlineUser } from "../../redux/slices/onlineUserSlice";
 
 interface InboxMessangerProfileProps {
   message: Messages;
@@ -17,6 +18,8 @@ const InboxMessangerProfile: FC<InboxMessangerProfileProps> = ({ message }) => {
   });
   const [username, setUsername] = useState("");
   const [avatar, setAvatar] = useState("/images/avatars/default.png");
+  const [userOnlineStatus, setUserOnlineStatus] = useState(false);
+  const { onlineUsers } = useSelector((state: RootState) => state.onlineUsers);
 
   const { messagesCount } = useSelector((state: RootState) => state.message);
 
@@ -24,6 +27,27 @@ const InboxMessangerProfile: FC<InboxMessangerProfileProps> = ({ message }) => {
     (count) =>
       count.sender === message.contents[message.contents.length - 1].sender
   );
+
+  useEffect(() => {
+    function handleOnlineUser(onlineUsers: OnlineUser[]) {
+      let userEntry = onlineUsers.find((entry) =>
+        entry.userId === message.sender ? message.sender : ""
+      );
+      if (userEntry && userEntry.timing.to) {
+        // let userTiming = formatDistance(userEntry.timing.to, new Date());
+        return false;
+      } else if (
+        userEntry &&
+        userEntry.timing.from &&
+        userEntry.timing.to === ""
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    setUserOnlineStatus(() => handleOnlineUser(onlineUsers));
+  }, [onlineUsers]);
 
   useEffect(() => {
     if (data && isSuccess) {
@@ -34,7 +58,13 @@ const InboxMessangerProfile: FC<InboxMessangerProfileProps> = ({ message }) => {
   }, [data, isSuccess]);
   return (
     <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-start">
-      <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
+      <div className=" relative rounded-full ">
+        <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
+        {userOnlineStatus && (
+          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute right-0 bottom-1 border border-white " />
+        )}
+      </div>
+
       <div>
         <p className=" flex flex-col font-semibold">
           <p className=" text-xs">{username}</p>
@@ -76,8 +106,8 @@ export const InboxMessangerSuggestedProfile: FC<{ userId: string }> = ({
   });
   const [username, setUsername] = useState("");
   const [avatar, setAvatar] = useState("/images/avatars/default.png");
-
-  console.log(avatar);
+  const [userOnlineStatus, setUserOnlineStatus] = useState(false);
+  const { onlineUsers } = useSelector((state: RootState) => state.onlineUsers);
 
   useEffect(() => {
     if (data && isSuccess) {
@@ -85,9 +115,32 @@ export const InboxMessangerSuggestedProfile: FC<{ userId: string }> = ({
       if (data.data.avatar.url) setAvatar(data.data.avatar.url);
     }
   }, [data, isSuccess]);
+
+  useEffect(() => {
+    function handleOnlineUser(onlineUsers: OnlineUser[]) {
+      let userEntry = onlineUsers.find((entry) =>
+        entry.userId === userId ? userId : ""
+      );
+      if (userEntry && userEntry.timing.to) {
+        // let userTiming = formatDistance(userEntry.timing.to, new Date());
+        return false;
+      } else if (userEntry && userEntry.timing.from && !userEntry.timing.to) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    setUserOnlineStatus(() => handleOnlineUser(onlineUsers));
+  }, [onlineUsers]);
+
   return (
     <div className=" flex flex-row gap-2 items-center cursor-pointer   pl-2 py-2 bg-white hover:bg-[#efefef] justify-start">
-      <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
+      <div className=" relative rounded-full ">
+        <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
+        {userOnlineStatus && (
+          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute right-0 bottom-1 border border-white " />
+        )}
+      </div>
       <div>
         <p className=" flex flex-col font-semibold">
           <p className=" text-xs">{username}</p>

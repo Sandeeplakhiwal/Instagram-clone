@@ -98,13 +98,11 @@ const exampleSlice = createSlice({
         // If user found
         if (sender === userId) {
           // If sender is the same as userId
-          console.log("Id has matched");
           const recipientIndex = state.userMessages[
             userIndex
           ].messages.findIndex(
             (msg) => msg.sender === action.payload.recipient
           );
-          console.log("recipent index", recipientIndex);
           if (recipientIndex === -1) {
             // If recipient not found, create a new entry for the recipient
             state.userMessages[userIndex].messages.push({
@@ -167,7 +165,6 @@ const exampleSlice = createSlice({
       }
       // Save updated userMessages to localStorage
       localStorage.setItem("userMessages", JSON.stringify(state.userMessages));
-      console.log("message has set to localstorage");
     },
 
     unsendMessage: (state, action: PayloadAction<UnsendMessagePayload>) => {

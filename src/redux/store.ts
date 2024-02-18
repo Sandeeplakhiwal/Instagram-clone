@@ -3,6 +3,7 @@ import userReducer, { InitialStateType } from "./slices/userSlice";
 import { Message } from "../components/inbox/directMessageBox";
 import messageReducer, { SenderCount } from "./slices/messagesSlice";
 import exampleReducer, { UserMessages } from "./slices/exampleSlice";
+import onlineUserReducer, { OnlineUser } from "./slices/onlineUserSlice";
 
 export type RootState = {
   user: InitialStateType;
@@ -13,6 +14,9 @@ export type RootState = {
   example: {
     userMessages: UserMessages[];
   };
+  onlineUsers: {
+    onlineUsers: OnlineUser[];
+  };
 };
 
 export const store = configureStore({
@@ -20,6 +24,7 @@ export const store = configureStore({
     user: userReducer,
     message: messageReducer,
     example: exampleReducer,
+    onlineUsers: onlineUserReducer,
   },
   devTools: true,
 });
