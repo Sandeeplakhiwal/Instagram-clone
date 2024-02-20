@@ -25,7 +25,7 @@ function DirectMessageHeader() {
         let userTiming = formatDistance(userEntry.timing.to, new Date());
         return `Active ${userTiming} ago`;
       } else if (userEntry && userEntry.timing.from && !userEntry.timing.to) {
-        return "Online";
+        return "Active now";
       } else {
         return "";
       }
@@ -44,8 +44,11 @@ function DirectMessageHeader() {
   return (
     <div className=" bg-white w-full h-12 flex flex-row items-center px-2 justify-between border border-gray-primary">
       <div className=" flex items-center">
-        <Link to={`/p/${username}/${id}`}>
+        <Link to={`/p/${username}/${id}`} className=" relative">
           <img src={avatar} alt={username} className=" h-9 w-9 rounded-full" />
+          {userStatus === "Active now" && (
+            <div className=" bg-[#12AD2B] h-[10px] w-[10px] rounded-full absolute -right-1 bottom-1 border border-white " />
+          )}
         </Link>
         <Link to={`/p/${username}/${id}`}>
           <p className=" font-semibold ml-2 text-sm">{username}</p>

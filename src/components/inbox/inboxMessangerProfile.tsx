@@ -61,7 +61,7 @@ const InboxMessangerProfile: FC<InboxMessangerProfileProps> = ({ message }) => {
       <div className=" relative rounded-full ">
         <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
         {userOnlineStatus && (
-          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute right-0 bottom-1 border border-white " />
+          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute -right-1 bottom-1 border border-white " />
         )}
       </div>
 
@@ -138,7 +138,7 @@ export const InboxMessangerSuggestedProfile: FC<{ userId: string }> = ({
       <div className=" relative rounded-full ">
         <img src={avatar} alt={username} className=" rounded-full h-10 w-10 " />
         {userOnlineStatus && (
-          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute right-0 bottom-1 border border-white " />
+          <div className=" bg-[#12AD2B] h-3 w-3 rounded-full absolute -right-1 bottom-1 border border-white " />
         )}
       </div>
       <div>

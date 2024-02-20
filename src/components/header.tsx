@@ -20,8 +20,8 @@ import {
   removeUserOnlineTiming,
 } from "../redux/slices/onlineUserSlice";
 
-export const socket = io("https://anontalks-backend-production.up.railway.app");
-// export const socket = io("http://localhost:5000");
+// export const socket = io("https://anontalks-backend-production.up.railway.app");
+export const socket = io("http://localhost:5000");
 
 interface HeaderProps {
   setMessages?: Dispatch<SetStateAction<Message[]>>;
