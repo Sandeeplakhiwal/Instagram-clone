@@ -5,15 +5,21 @@ import { Message } from "./directMessageBox";
 import { addNewMessage } from "../../redux/slices/exampleSlice";
 import { socket } from "../header";
 import { useParams } from "react-router-dom";
+import { resetMessageSeenConversation } from "../../redux/slices/messagesSlice";
 
 // Sound file
 // import sendMessageSound from "../../../public/sounds/sendMessageSound.mp3";
 
 interface DirectMessageFooterProps {
   setMessages: Dispatch<SetStateAction<Message[]>>;
+  messageSeenStatus?: string;
+  setMessageSeenStatus: Dispatch<SetStateAction<string>>;
 }
 
-const DirectMessageFooter: FC<DirectMessageFooterProps> = ({ setMessages }) => {
+const DirectMessageFooter: FC<DirectMessageFooterProps> = ({
+  setMessages,
+  setMessageSeenStatus,
+}) => {
   const [inputText, setInputText] = useState("");
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.user);
@@ -36,8 +42,19 @@ const DirectMessageFooter: FC<DirectMessageFooterProps> = ({ setMessages }) => {
       // Update state with the new message
       setMessages((prevMessages) => [...prevMessages, newMessage] as Message[]);
 
+      // Reset the message seen status useState
+      setMessageSeenStatus("");
+
       // Emit the private message through the socket
       socket.emit("private_message", newMessage);
+
+      // Reset the message seen conversation entry
+      dispatch(
+        resetMessageSeenConversation({
+          sender: newMessage.sender,
+          recipient: newMessage.recipient,
+        })
+      );
 
       // Update message in localstorage
       // dispatch(addMessage(newMessage));

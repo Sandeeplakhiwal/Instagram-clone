@@ -6,11 +6,20 @@ export interface SenderCount {
   count: number;
 }
 
+export interface MessageSeenConversation {
+  sender: string;
+  recipient: string;
+  status: string;
+}
+
 const initialState = {
   messages: JSON.parse(localStorage.getItem("messages") || "[]") as Message[],
   messagesCount: JSON.parse(
     localStorage.getItem("messagesCount") || "[]"
   ) as SenderCount[],
+  messageSeenConversations: JSON.parse(
+    localStorage.getItem("messageSeenConversations") || "[]"
+  ) as MessageSeenConversation[],
 };
 
 const messageSlice = createSlice({
@@ -50,6 +59,52 @@ const messageSlice = createSlice({
         JSON.stringify(state.messagesCount)
       );
     },
+    addToMessageSeenConversation: (
+      state,
+      action: PayloadAction<{ sender: string; recipient: string }>
+    ) => {
+      const { sender, recipient } = action.payload;
+      let indexOfConversation = state.messageSeenConversations.findIndex(
+        (convers) =>
+          convers.recipient === recipient && convers.sender === sender
+      );
+      if (indexOfConversation !== -1) {
+        state.messageSeenConversations[indexOfConversation].status = "Seen";
+      } else {
+        state.messageSeenConversations.push({
+          sender,
+          recipient,
+          status: "Seen",
+        });
+      }
+      localStorage.setItem(
+        "messageSeenConversations",
+        JSON.stringify(state.messageSeenConversations)
+      );
+    },
+    resetMessageSeenConversation: (
+      state,
+      action: PayloadAction<{ sender: string; recipient: string }>
+    ) => {
+      const { sender, recipient } = action.payload;
+      let indexOfConversation = state.messageSeenConversations.findIndex(
+        (convers) =>
+          convers.recipient === recipient && convers.sender === sender
+      );
+      if (indexOfConversation !== -1) {
+        state.messageSeenConversations[indexOfConversation].status = "Unseen";
+      } else {
+        state.messageSeenConversations.push({
+          sender,
+          recipient,
+          status: "Unseen",
+        });
+      }
+      localStorage.setItem(
+        "messageSeenConversations",
+        JSON.stringify(state.messageSeenConversations)
+      );
+    },
   },
 });
 
@@ -58,6 +113,8 @@ export const {
   clearMessages,
   increaseMessagesCount,
   decreaseMessagesCount,
+  addToMessageSeenConversation,
+  resetMessageSeenConversation,
 } = messageSlice.actions;
 
 export default messageSlice.reducer;

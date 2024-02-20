@@ -55,7 +55,7 @@ function Sidebar() {
 
   return (
     <Suspense fallback={<Skeleton />}>
-      <div className="p-4 invisible md:visible">
+      <div className="p-4 invisible md:visible outline-none border-none">
         <User
           username={user && user.name ? user.name.split(" ")[0] : ""}
           fullName={user ? user.name : ""}

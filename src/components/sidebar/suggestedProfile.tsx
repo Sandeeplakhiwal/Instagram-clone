@@ -74,7 +74,7 @@ const SuggestedProfile: React.FC<SugProfileType> = ({
   }
 
   return isSelfProfile(user, _id) ? null : (
-    <div className="flex flex-row items-center align-items justify-between">
+    <div className="flex flex-row items-center align-items justify-between outline-none">
       <Link to={`/p/${userName}/${_id}`}>
         <div className=" flex items-center justify-center">
           <img

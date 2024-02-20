@@ -11,7 +11,7 @@ interface SuggestionsProps {
 const Suggestions: React.FC<SuggestionsProps> = ({ users = [] }) => {
   const { user } = useSelector((state: RootState) => state.user);
   return (
-    <div className=" rounded flex flex-col">
+    <div className=" rounded flex flex-col outline-none">
       <div className=" text-sm flex items-center align-middle justify-between mb-2">
         <p className=" font-bold text-gray-base">
           {" "}

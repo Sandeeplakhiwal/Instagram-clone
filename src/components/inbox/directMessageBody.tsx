@@ -5,11 +5,15 @@ import { Message } from "./directMessageBox";
 interface DirectMessageBodyProps {
   messages: Message[];
   setMessages: Dispatch<SetStateAction<Message[]>>;
+  messageSeenStatus: string;
+  setMessageSeenStatus: Dispatch<SetStateAction<string>>;
 }
 
 const DirectMessageBody: FC<DirectMessageBodyProps> = ({
   messages,
   setMessages,
+  messageSeenStatus,
+  setMessageSeenStatus,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -23,7 +27,12 @@ const DirectMessageBody: FC<DirectMessageBodyProps> = ({
       ref={containerRef}
       style={{ overflowY: "auto", maxHeight: "100vh" }}
     >
-      <TodayChatBox messages={messages} setMessages={setMessages} />
+      <TodayChatBox
+        messages={messages}
+        setMessages={setMessages}
+        messageSeenStatus={messageSeenStatus}
+        setMessageSeenStatus={setMessageSeenStatus}
+      />
     </div>
   );
 };

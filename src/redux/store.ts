@@ -1,7 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer, { InitialStateType } from "./slices/userSlice";
 import { Message } from "../components/inbox/directMessageBox";
-import messageReducer, { SenderCount } from "./slices/messagesSlice";
+import messageReducer, {
+  MessageSeenConversation,
+  SenderCount,
+} from "./slices/messagesSlice";
 import exampleReducer, { UserMessages } from "./slices/exampleSlice";
 import onlineUserReducer, { OnlineUser } from "./slices/onlineUserSlice";
 
@@ -10,6 +13,7 @@ export type RootState = {
   message: {
     messages: Message[];
     messagesCount: SenderCount[];
+    messageSeenConversations: MessageSeenConversation[];
   };
   example: {
     userMessages: UserMessages[];

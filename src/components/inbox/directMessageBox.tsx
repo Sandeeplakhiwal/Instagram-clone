@@ -1,10 +1,14 @@
-import { Dispatch, FC, SetStateAction, useEffect } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import DirectMessageBody from "./directMessageBody";
 import DirectMessageFooter from "./directMessageFooter";
 import DirectMessageHeader from "./directMessageHeader";
-import { useDispatch } from "react-redux";
-import { decreaseMessagesCount } from "../../redux/slices/messagesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  MessageSeenConversation,
+  decreaseMessagesCount,
+} from "../../redux/slices/messagesSlice";
 import { useParams } from "react-router-dom";
+import { RootState } from "../../redux/store";
 
 export interface Message {
   sender: string;
@@ -25,16 +29,41 @@ const DirectMessageBox: FC<DirectMessageBoxProps> = ({
 }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { messageSeenConversations } = useSelector(
+    (state: RootState) => state.message
+  );
+  const { user } = useSelector((state: RootState) => state.user);
+  const getConversationSeenStatus = (
+    arr: MessageSeenConversation[]
+  ): string => {
+    let status = arr.find(
+      (convers) => convers.sender === user?._id && convers.recipient === id
+    )?.status;
+    return status ? status : "";
+  };
+  const [messageSeenStatus, setMessageSeenStatus] = useState<string>(() =>
+    getConversationSeenStatus(messageSeenConversations)
+  );
 
   useEffect(() => {
     dispatch(decreaseMessagesCount(id ? id : ""));
   }, [dispatch]);
+
   return (
     <div className="w-full h-full border border-gray-primary ">
       <DirectMessageHeader />
-      <DirectMessageBody messages={messages} setMessages={setMessages} />
+      <DirectMessageBody
+        messages={messages}
+        setMessages={setMessages}
+        messageSeenStatus={messageSeenStatus}
+        setMessageSeenStatus={setMessageSeenStatus}
+      />
 
-      <DirectMessageFooter setMessages={setMessages} />
+      <DirectMessageFooter
+        setMessages={setMessages}
+        messageSeenStatus={messageSeenStatus}
+        setMessageSeenStatus={setMessageSeenStatus}
+      />
     </div>
   );
 };

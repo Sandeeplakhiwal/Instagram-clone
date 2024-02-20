@@ -31,7 +31,7 @@ function DirectMessageHeader() {
       }
     }
     setUserStatus(() => handleOnlineUser(onlineUsers));
-  }, [onlineUsers]);
+  }, [onlineUsers, id]);
 
   useEffect(() => {
     if (data && isSuccess) {
