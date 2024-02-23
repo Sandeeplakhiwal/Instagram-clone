@@ -9,6 +9,8 @@ import {
 } from "../../redux/slices/messagesSlice";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../redux/store";
+import MessageDetailsHeader from "../messageDetails/messageDetailsHeader";
+import MessageDetailsFooter from "../messageDetails/messageDetailsFooter";
 
 export interface Message {
   sender: string;
@@ -45,26 +47,55 @@ const DirectMessageBox: FC<DirectMessageBoxProps> = ({
     getConversationSeenStatus(messageSeenConversations)
   );
 
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(false);
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
   useEffect(() => {
     dispatch(decreaseMessagesCount(id ? id : ""));
   }, [dispatch]);
 
-  return (
-    <div className="w-full h-full border border-gray-primary ">
-      <DirectMessageHeader />
-      <DirectMessageBody
-        messages={messages}
-        setMessages={setMessages}
-        messageSeenStatus={messageSeenStatus}
-        setMessageSeenStatus={setMessageSeenStatus}
-      />
+  useEffect(() => {
+    setMessageSeenStatus(() =>
+      getConversationSeenStatus(messageSeenConversations)
+    );
+  }, [id]);
 
-      <DirectMessageFooter
-        setMessages={setMessages}
-        messageSeenStatus={messageSeenStatus}
-        setMessageSeenStatus={setMessageSeenStatus}
-      />
-    </div>
+  return (
+    <>
+      <div
+        className={`w-full h-full border border-gray-primary ${
+          sidebarVisible ? " hidden sm:block" : " block"
+        }`}
+      >
+        <DirectMessageHeader
+          toggleSidebar={toggleSidebar}
+          sidebarVisible={sidebarVisible}
+        />
+        <DirectMessageBody
+          messages={messages}
+          setMessages={setMessages}
+          messageSeenStatus={messageSeenStatus}
+          setMessageSeenStatus={setMessageSeenStatus}
+        />
+
+        <DirectMessageFooter
+          setMessages={setMessages}
+          messageSeenStatus={messageSeenStatus}
+          setMessageSeenStatus={setMessageSeenStatus}
+        />
+      </div>
+      <div
+        className={` relative w-full sm:w-2/6 transition-transform duration-1000 ease-in-out ${
+          sidebarVisible ? " block" : " hidden"
+        }`}
+      >
+        <MessageDetailsHeader toggleSidebar={toggleSidebar} />
+        <MessageDetailsFooter />
+      </div>
+    </>
   );
 };
 

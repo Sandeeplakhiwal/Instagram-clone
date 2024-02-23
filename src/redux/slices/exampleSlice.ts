@@ -33,6 +33,16 @@ interface DeleteReceivedMessagePayload {
   messageId: string;
 }
 
+interface DeleteSelectedMessagesPayload {
+  userId: string;
+  messagesToDelete: Messages[];
+}
+
+// Generate a 24-character ID using nanoid
+const generateMongoId = () => {
+  return nanoid(12) + nanoid(12);
+};
+
 // Load userMessages from localStorage if available
 const savedUserMessages = localStorage.getItem("userMessages");
 let initialState: InitialState = {
@@ -65,13 +75,13 @@ const exampleSlice = createSlice({
                     recipient: action.payload.recipient,
                     content: action.payload.content,
                     createdAt: action.payload.createdAt,
-                    _id: nanoid(),
+                    _id: generateMongoId(),
                   },
                 ],
-                _id: nanoid(),
+                _id: generateMongoId(),
               },
             ],
-            _id: nanoid(),
+            _id: generateMongoId(),
           });
         } else {
           state.userMessages.push({
@@ -85,13 +95,13 @@ const exampleSlice = createSlice({
                     recipient: action.payload.recipient,
                     content: action.payload.content,
                     createdAt: action.payload.createdAt,
-                    _id: nanoid(),
+                    _id: generateMongoId(),
                   },
                 ],
-                _id: nanoid(),
+                _id: generateMongoId(),
               },
             ],
-            _id: nanoid(),
+            _id: generateMongoId(),
           });
         }
       } else {
@@ -113,10 +123,10 @@ const exampleSlice = createSlice({
                   recipient: action.payload.recipient,
                   content: action.payload.content,
                   createdAt: action.payload.createdAt,
-                  _id: nanoid(),
+                  _id: generateMongoId(),
                 },
               ],
-              _id: nanoid(),
+              _id: generateMongoId(),
             });
           } else {
             // If recipient found, push message to existing recipeint's contents
@@ -127,7 +137,7 @@ const exampleSlice = createSlice({
               recipient: action.payload.recipient,
               content: action.payload.content,
               createdAt: action.payload.createdAt,
-              _id: nanoid(),
+              _id: generateMongoId(),
             });
           }
         } else {
@@ -146,10 +156,10 @@ const exampleSlice = createSlice({
                   recipient: action.payload.recipient,
                   content: action.payload.content,
                   createdAt: action.payload.createdAt,
-                  _id: nanoid(),
+                  _id: generateMongoId(),
                 },
               ],
-              _id: nanoid(),
+              _id: generateMongoId(),
             });
           } else {
             // If sender found, push message to existing sender's contents
@@ -158,7 +168,7 @@ const exampleSlice = createSlice({
               recipient: action.payload.recipient,
               content: action.payload.content,
               createdAt: action.payload.createdAt,
-              _id: nanoid(),
+              _id: generateMongoId(),
             });
           }
         }
@@ -242,6 +252,54 @@ const exampleSlice = createSlice({
       localStorage.setItem("userMessages", JSON.stringify(state.userMessages));
     },
 
+    deleteSelectedMessages: (
+      state,
+      action: PayloadAction<DeleteSelectedMessagesPayload>
+    ) => {
+      const { userId, messagesToDelete } = action.payload;
+      let messageIds: Array<string> = [];
+      // Find the user
+      const userIndex = state.userMessages.findIndex(
+        (userMsg) => userMsg.userId === userId
+      );
+      if (userIndex !== -1) {
+        // Find the message in the user's messages
+        for (let i = 0; i < messagesToDelete.length; i++) {
+          for (let j = 0; j < messagesToDelete[i].contents.length; j++) {
+            messageIds.push(messagesToDelete[i].contents[j]._id);
+          }
+        }
+      }
+      if (messageIds.length) {
+        for (let i = 0; i < messageIds.length; i++) {
+          const messageIndex = state.userMessages[userIndex].messages.findIndex(
+            (msg) =>
+              msg.contents.some((content) => content._id === messageIds[i])
+          );
+          if (messageIndex !== -1) {
+            // Remove the message from the contents array
+            state.userMessages[userIndex].messages[
+              messageIndex
+            ].contents.filter((content) => content._id !== messageIds[i]);
+
+            // If the contents array becomes empty after removing the messages, remove the entire message
+            if (
+              state.userMessages[userIndex].messages[messageIndex].contents
+                .length === 0
+            ) {
+              state.userMessages[userIndex].messages.splice(messageIndex, 1);
+            }
+
+            // Save updated userMessages to localStorage
+            localStorage.setItem(
+              "userMessages",
+              JSON.stringify(state.userMessages)
+            );
+          }
+        }
+      }
+    },
+
     clearMessages: (state) => {
       state.userMessages = [];
     },
@@ -253,6 +311,7 @@ export const {
   clearMessages,
   unsendMessage,
   deleteReceivedMessage,
+  deleteSelectedMessages,
 } = exampleSlice.actions;
 
 export default exampleSlice.reducer;

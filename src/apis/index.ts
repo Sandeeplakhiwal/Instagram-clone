@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { UserMessages } from "../redux/slices/exampleSlice";
 
 // const server: string =
 //   "http://ec2-3-6-220-31.ap-south-1.compute.amazonaws.com:5000/api/v1";
 
-export const server: string = "http://localhost:5000/api/v1";
+// export const server: string = "http://localhost:5000/api/v1";
 
-// const server: string =
-//   "https://anontalks-backend-production.up.railway.app/api/v1";
+const server: string =
+  "https://anontalks-backend-production.up.railway.app/api/v1";
 
 interface loginCredentials {
   email: string;
@@ -259,4 +260,19 @@ export const deleteMyProfileApi = () => {
 export const getUserNameByIdApi = ({ queryKey }: queryKeyParams) => {
   const id = queryKey[1];
   return axios.get(`${server}/username/${id}`);
+};
+
+export const backupUserMessagesApi = (userMessages: UserMessages) => {
+  return axios.post(`${server}/backup-messages`, userMessages, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    withCredentials: true,
+  });
+};
+
+export const getUserBackedupMessagesApi = () => {
+  return axios.get(`${server}/backup/messages`, {
+    withCredentials: true,
+  });
 };

@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { authApi } from "./apis/index.ts";
 import { loadUser } from "./redux/slices/userSlice.ts";
 import { RootState } from "./redux/store.ts";
+import Backup from "./utils/backup.tsx";
 
 const Login = lazy(() => import("./pages/LoginPage.tsx"));
 const SignUp = lazy(() => import("./pages/SignupPage.tsx"));
@@ -77,6 +78,7 @@ function App() {
         </Routes>
       </Suspense>
       <Toaster position={"bottom-center"} />
+      <Backup />
     </Router>
   );
 }
