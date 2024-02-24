@@ -1,10 +1,6 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import * as PageRoutes from "../constants/routes";
 import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
-import { removeUser } from "../redux/slices/userSlice";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { logoutApi } from "../apis";
 import { RootState } from "../redux/store";
 import { Dispatch, FC, SetStateAction, useEffect } from "react";
 import { io } from "socket.io-client";
@@ -43,8 +39,6 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
   );
   const { messagesCount } = useSelector((state: RootState) => state.message);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const { id } = useParams();
 
@@ -64,24 +58,6 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
         )
       ]?.contents
   );
-
-  const { refetch: logoutRefetch } = useQuery({
-    queryKey: ["logout"],
-    queryFn: logoutApi,
-    enabled: false,
-  });
-
-  const handleLogout = async () => {
-    try {
-      await logoutRefetch();
-      dispatch(removeUser());
-      queryClient.resetQueries({ queryKey: ["user"] });
-      toast.success("Logged out successfully");
-      navigate(PageRoutes.LOGIN);
-    } catch (error) {
-      toast.error("Something went wrong!");
-    }
-  };
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -277,7 +253,7 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
                     </svg>
                   </div>
                 </Link>
-                <button
+                {/*                 <button
                   type="button"
                   title="Sign Out"
                   onClick={handleLogout}
@@ -297,7 +273,7 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
                       d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
                     />
                   </svg>
-                </button>
+                </button> */}
                 {user && (
                   <div className="flex items-center cursor-pointer">
                     <Link to={`/p/${user?.name}/${user?._id}`}>

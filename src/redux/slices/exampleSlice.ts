@@ -300,6 +300,19 @@ const exampleSlice = createSlice({
       }
     },
 
+    clearUserMessages: (state, action: PayloadAction<{ userId: string }>) => {
+      let findUserIndex = state.userMessages.findIndex(
+        (userMsg) => userMsg.userId === action.payload.userId
+      );
+      if (findUserIndex !== -1) {
+        state.userMessages.splice(findUserIndex, 1);
+        localStorage.setItem(
+          "userMessages",
+          JSON.stringify(state.userMessages)
+        );
+      }
+    },
+
     clearMessages: (state) => {
       state.userMessages = [];
     },
@@ -312,6 +325,7 @@ export const {
   unsendMessage,
   deleteReceivedMessage,
   deleteSelectedMessages,
+  clearUserMessages,
 } = exampleSlice.actions;
 
 export default exampleSlice.reducer;

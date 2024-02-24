@@ -4,9 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { backupUserMessagesApi, getUserBackedupMessagesApi } from "../apis";
 import { useEffect, useState } from "react";
 import {
+  Messages,
   UserMessages,
   addNewMessage,
-  clearMessages,
+  clearUserMessages,
+  // clearMessages,
   unsendMessage,
 } from "../redux/slices/exampleSlice";
 
@@ -14,6 +16,25 @@ function isBackupNeeded(lastBackupTimestamp: any) {
   const threshold = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   const currentTime = Date.now();
   return currentTime - lastBackupTimestamp > threshold;
+}
+
+function filterMessages(
+  messages: Messages[],
+  backedupMessageIds: Array<string>
+) {
+  // Iterate over each message
+  return messages.map((message) => {
+    // Filter out contents that do not match any backed up message ID
+    const filteredContents = message.contents.filter(
+      (content) => !backedupMessageIds.includes(content._id)
+    );
+
+    // Return the message object with filtered contents
+    return {
+      ...message,
+      contents: filteredContents,
+    };
+  });
 }
 
 function Backup() {
@@ -69,17 +90,25 @@ function Backup() {
         localStorage.getItem("backedUpMessagesIds") || "[]"
       );
 
-      const messagesToBackup = userMessages?.messages.filter(
-        (message) => !backedUpMessageIds.includes(message._id)
+      const messagesToBackup = filterMessages(
+        userMessages?.messages,
+        backedUpMessageIds
       );
 
-      if (isBackupNeeded(lastBackupTimestamp)) {
-        backupUserMessagesMutate({
-          userId: user ? user._id : "",
-          messages: messagesToBackup,
-          _id: userMessages._id,
-        });
+      console.log("userMess", userMessages);
+
+      console.log("messages to backup", messagesToBackup);
+
+      if (messagesToBackup[0]?.contents?.length > 0) {
+        if (isBackupNeeded(lastBackupTimestamp)) {
+          backupUserMessagesMutate({
+            userId: user ? user._id : "",
+            messages: messagesToBackup,
+            _id: userMessages._id,
+          });
+        }
       }
+
       if (backupSuccess) {
         const messageIds = [];
         for (let i = 0; i < messagesToBackup.length; i++) {
@@ -123,23 +152,30 @@ function Backup() {
       if (getBackupMessagesData.data?.backupMessages) {
         let messagesToAdd: UserMessages[] =
           getBackupMessagesData.data?.backupMessages;
-        dispatch(clearMessages());
-        messagesToAdd.forEach((userMsg) =>
-          userMsg.messages.map((msg) =>
-            msg.contents.map((item) => {
-              dispatch(
-                addNewMessage({
-                  userId: userMsg.userId,
-                  sender: item.sender,
-                  recipient: item.recipient,
-                  content: item.content,
-                  createdAt: item.createdAt,
-                })
-              );
-              backedUpMessageIds.push(item._id);
-            })
-          )
-        );
+        if (backupSuccess) {
+          dispatch(clearUserMessages({ userId: user ? user._id : "" }));
+        }
+
+        if (userMessages?.messages.length === 0 || backupSuccess) {
+          messagesToAdd.forEach((userMsg) =>
+            userMsg.messages.map((msg) =>
+              msg.contents.map((item) => {
+                dispatch(
+                  addNewMessage({
+                    userId: userMsg.userId,
+                    sender: item.sender,
+                    recipient: item.recipient,
+                    content: item.content,
+                    createdAt: item.createdAt,
+                  })
+                );
+                if (!backedUpMessageIds.includes(item._id)) {
+                  backedUpMessageIds.push(item._id);
+                }
+              })
+            )
+          );
+        }
 
         queryClient.resetQueries({ queryKey: ["get-backup-messages"] });
       }
@@ -150,7 +186,7 @@ function Backup() {
     );
   }, [getBackupMessagesData]);
 
-  return <p />;
+  return <p className=" invisible"></p>;
 }
 
 export default Backup;
