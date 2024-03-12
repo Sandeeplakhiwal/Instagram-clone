@@ -14,11 +14,13 @@
     "@reduxjs/toolkit": "^2.0.1",
     "@tanstack/react-query": "^5.17.1",
     "@tanstack/react-query-devtools": "^5.17.1",
+    "@types/uuid": "^9.0.8",
     "axios": "^1.6.3",
     "date-fns": "^3.2.0",
     "firebase": "^10.7.1",
     "formik": "^2.4.5",
     "npm-run-all": "^4.1.5",
+    "peerjs": "^1.5.2",
     "protected-route-react": "^1.0.1",
     "react": "^18.2.0",
     "react-dnd": "^16.0.1",
@@ -28,7 +30,9 @@
     "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.1",
     "react-scrollbars-custom": "^4.1.1",
+    "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.4",
+    "uuid": "^9.0.1",
     "yup": "^1.3.3"
   },
   "devDependencies": {
@@ -36,6 +40,7 @@
     "@types/jest": "^29.5.11",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
+    "@types/simple-peer": "^9.11.8",
     "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
@@ -50,6 +55,7 @@
     "tailwindcss": "^3.4.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-plugin-node-polyfills": "^0.21.0"
   }
 }

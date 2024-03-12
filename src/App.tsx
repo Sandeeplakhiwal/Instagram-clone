@@ -20,6 +20,7 @@ const Inbox = lazy(() => import("./pages/inbox.tsx"));
 const DirectMessage = lazy(() => import("./pages/direct.tsx"));
 const Profile = lazy(() => import("./pages/profilePage.tsx"));
 const EditProfile = lazy(() => import("./pages/editProfile.tsx"));
+const CallPage = lazy(() => import("./pages/callPage.tsx"));
 
 function App() {
   const dispatch = useDispatch();
@@ -64,6 +65,10 @@ function App() {
           <Route
             path={PageRoutes.DIRECT}
             element={isAuthenticated ? <DirectMessage /> : <Login />}
+          />
+          <Route
+            path={PageRoutes.CALL}
+            element={isAuthenticated ? <CallPage /> : <Login />}
           />
           <Route
             path={PageRoutes.PROFILE}

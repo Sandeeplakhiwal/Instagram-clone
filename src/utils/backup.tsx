@@ -95,9 +95,9 @@ function Backup() {
         backedUpMessageIds
       );
 
-      console.log("userMess", userMessages);
+      // console.log("userMess", userMessages);
 
-      console.log("messages to backup", messagesToBackup);
+      // console.log("messages to backup", messagesToBackup);
 
       if (messagesToBackup[0]?.contents?.length > 0) {
         if (isBackupNeeded(lastBackupTimestamp)) {
