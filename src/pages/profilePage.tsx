@@ -225,7 +225,7 @@ function ProfilePage() {
   return userProfileLoading === true ? (
     <AppFallback />
   ) : (
-    <div>
+    <div className=" min-w-[375px]">
       <Header />
       <div className="max-w-screen-md bg-white mx-auto p-4 min-h-screen">
         <div id="profile-header" className=" flex mx-auto gap-4 mb-16">
@@ -241,12 +241,12 @@ function ProfilePage() {
             />
           </div>
           <div className=" w-2/3 flex flex-col px-0  sm:px-4 gap-4">
-            <p className=" flex flex-row  w-full gap-2 sm:gap-8 items-end">
+            <p className=" flex flex-col sm:flex-row  w-full gap-2 sm:gap-8 ">
               <p className=" items-end grow sm:grow-0">
                 {userProfile && userProfile.name}
               </p>
               {isSelfProfile(user, id ? id : "") ? (
-                <>
+                <div className=" flex flex-row gap-2">
                   <Link
                     to={`/p/edit/${userProfile && userProfile.name}/${
                       userProfile && userProfile._id
@@ -262,7 +262,7 @@ function ProfilePage() {
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      className="w-6 h-6"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
                     >
                       <path
                         stroke-linecap="round"
@@ -276,7 +276,7 @@ function ProfilePage() {
                       />
                     </svg>
                   </button>
-                </>
+                </div>
               ) : null}
             </p>
             <p className=" flex flex-row  w-full gap-8">
