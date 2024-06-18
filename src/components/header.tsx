@@ -135,7 +135,7 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
           body: `You have received a new message`,
           silent: true,
           icon: "/favicon.ico",
-          timestamp: Date.now(),
+          // timestamp: Date.now(),
         });
         notificationAudio.play();
       } else if (Notification.permission !== "denied") {
@@ -145,7 +145,7 @@ const Header: FC<HeaderProps> = ({ setMessages }) => {
               body: `You have received a new message`,
               silent: true,
               icon: "/favicon.ico",
-              timestamp: Date.now(),
+              // timestamp: Date.now(),
             });
             notificationAudio.play();
           }
