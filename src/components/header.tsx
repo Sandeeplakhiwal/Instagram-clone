@@ -16,7 +16,7 @@ import {
   removeUserOnlineTiming,
 } from "../redux/slices/onlineUserSlice";
 
-export const socket = io("https://anontalks-backend-production.up.railway.app");
+export const socket = io("https://anontalks-backend.onrender.com");
 // export const socket = io("http://localhost:5000");
 
 interface HeaderProps {
