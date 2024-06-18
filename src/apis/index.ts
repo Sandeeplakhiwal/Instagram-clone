@@ -8,7 +8,7 @@ import { UserMessages } from "../redux/slices/exampleSlice";
 // export const server: string = "http://localhost:5000/api/v1";
 
 const server: string =
-  "https://anontalks-backend-production.up.railway.app/api/v1";
+  "https://anontalks-backend.onrender.com/api/v1";
 
 interface loginCredentials {
   email: string;
