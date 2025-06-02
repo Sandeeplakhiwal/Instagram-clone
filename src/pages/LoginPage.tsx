@@ -1,69 +1,42 @@
-import { useFormik } from "formik";
-import { FormEvent, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginSchema } from "../schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginApi } from "../apis";
-import toast from "react-hot-toast";
-import { DASHBOARD } from "../constants/routes";
+import { Link } from "react-router-dom";
 import PageLoader from "../components/pageLoader";
-import { isAxiosError } from "axios";
+import { useFormik } from "formik";
+import axios, { AxiosHeaders } from "axios";
+import { LOGIN } from "../constants/routes";
+import { loginSchema } from "../schema";
 
 function LoginPage() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    document.title = "Login - Instagram";
-  });
-
-  interface loginCredentials {
-    email: string;
-    password: string;
-  }
-
-  const initialValues: loginCredentials = {
-    email: "",
-    password: "",
-  };
-
-  const queryClient = useQueryClient();
-
-  const { error, isPending, mutateAsync } = useMutation({
-    mutationFn: loginApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      navigate(DASHBOARD);
-      toast.success("Logged in successfully");
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: loginSchema,
+    onSubmit: (values) => {
+      console.log("values", values);
     },
   });
-
-  const { errors, values, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik({
-      initialValues,
-      validationSchema: loginSchema,
-      onSubmit: (values, action) => {
-        mutateAsync(values);
-        action.resetForm();
-      },
-    });
-
-  async function submitHandler(event: FormEvent) {
-    event.preventDefault();
-    handleSubmit();
-  }
-
-  useEffect(() => {
-    if (error) {
-      if (isAxiosError(error) && error?.message === "Network Error") {
-        toast.error("Network error");
-      }
-
-      if (isAxiosError(error) && error.response && error.response.data) {
-        const errorMessage = (error.response.data as { message: string })
-          .message;
-        toast.error(errorMessage);
-      }
+  const handleSubmit = async (e: any) => {
+    e?.preventDefault();
+    // formik.handleSubmit();
+    try {
+      const { data } = await axios.post(
+        "http://localhost:8080/api/v1/login",
+        formik.values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("res", data);
+    } catch (error) {
+      console.error("Login failed", error);
     }
-  }, [error]);
+  };
+
+  console.log("formik", formik.values);
 
   return (
     <PageLoader>
@@ -86,39 +59,34 @@ function LoginPage() {
             </h1>
             <form method="POST">
               <input
+                id="email"
+                name="email"
+                onChange={formik.handleChange}
+                value={formik.values.email}
+                onBlur={formik.handleBlur}
                 aria-label="Enter your email address"
                 type="text"
                 placeholder="Email address"
-                name="email"
-                value={values.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
                 className="text-sm text-gray-base w-full my-3 py-5 px-4 h-2 border border-gray-primary mb-1 rounded "
               />
               <input
+                id="password"
+                name="password"
+                onChange={formik.handleChange}
+                value={formik.values.password}
+                onBlur={formik.handleBlur}
                 aria-label="Enter your password"
                 type="password"
                 placeholder="Password"
-                name="password"
-                value={values.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
                 className="text-sm text-gray-base w-full my-3 py-5 px-4 h-2 border border-gray-primary mb-2 rounded "
               />
-              {(errors.email || errors.password) &&
-              (touched.email || touched.password) ? (
-                <p className="text-red-primary mb-1 text-xs">
-                  *{errors.email || errors.password}
-                </p>
-              ) : null}
+
               <button
                 type="submit"
-                className={`bg-blue-medium text-white my-2 w-full rounded h-8 font-bold ${
-                  errors.email || errors.password ? "opacity-50" : ""
-                }`}
-                onClick={(e) => submitHandler(e)}
+                onClick={() => handleSubmit}
+                className={`bg-blue-medium text-white my-2 w-full rounded h-8 font-bold `}
               >
-                {isPending ? "Loading.." : "Log In"}
+                {"Log In"}
               </button>
             </form>
           </div>

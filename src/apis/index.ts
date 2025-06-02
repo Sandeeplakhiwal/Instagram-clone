@@ -7,8 +7,9 @@ import { UserMessages } from "../redux/slices/exampleSlice";
 
 // export const server: string = "http://localhost:5000/api/v1";
 
-const server: string =
-  "https://anontalks-backend.onrender.com/api/v1";
+// const server: string =
+//   "https://anontalks-backend.onrender.com/api/v1";
+const server: string = "http://localhost:8080/api/v1";
 
 interface loginCredentials {
   email: string;
@@ -27,15 +28,6 @@ interface queryKeyParams {
 
 export const loginApi = (formData: loginCredentials) => {
   return axios.post(`${server}/login`, formData, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    withCredentials: true,
-  });
-};
-
-export const signupApi = (formData: SignupCredentials) => {
-  return axios.post(`${server}/register`, formData, {
     headers: {
       "Content-Type": "application/json",
     },

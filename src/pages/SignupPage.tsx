@@ -1,69 +1,59 @@
-import { useFormik } from "formik";
-import { FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { signupSchema } from "../schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { signupApi } from "../apis";
-import toast from "react-hot-toast";
 import { DASHBOARD, LOGIN } from "../constants/routes";
-import { isAxiosError } from "axios";
+import { useFormik } from "formik";
+import { signupSchema } from "../schema";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../redux/slices/userSlice";
 
 function SignupPage() {
+  const dispatch = useDispatch();
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+    validationSchema: signupSchema,
+    onSubmit: (values) => {
+      console.log("Submit", values);
+    },
+  });
+
+  console.log("Values", formik.values);
+  console.log("Errors", formik.errors);
+
   const navigate = useNavigate();
-  useEffect(() => {
-    document.title = "Signup - Instagram";
-  });
 
-  interface SignupCredentials {
-    name: string;
-    email: string;
-    password: string;
-  }
-
-  const initialValues: SignupCredentials = {
-    name: "",
-    email: "",
-    password: "",
-  };
-
-  const queryClient = useQueryClient();
-
-  let { isPending, mutateAsync } = useMutation({
-    mutationFn: signupApi,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      navigate(DASHBOARD);
-      toast.success("Registered successfully");
-    },
-    onError: (error) => {
-      if (error) {
-        if (isAxiosError(error) && error?.message === "Network Error") {
-          toast.error("Network error");
-        }
-
-        if (isAxiosError(error) && error.response && error.response.data) {
-          const errorMessage = (error.response.data as { message: string })
-            .message;
-          toast.error(errorMessage);
-        }
-      }
-    },
-  });
-
-  const { errors, values, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik({
-      initialValues,
-      validationSchema: signupSchema,
-      onSubmit: async (values, action) => {
-        mutateAsync(values);
-        action.resetForm();
-      },
-    });
-
-  async function submitHandler(event: FormEvent) {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    handleSubmit();
-  }
+    console.log("Hello Wordl", formik.values);
+    try {
+      const { data } = await axios.post(
+        "http://localhost:8080/api/v1/create-user",
+        formik.values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log("Response", data);
+      dispatch(loadUser(data?.user || null));
+
+      console.log("Harsh");
+      toast.success("Account created successfully");
+      navigate(DASHBOARD);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+      console.log("ERROR", error);
+    }
+    // formik.handleSubmit();
+  };
 
   return (
     <div className="container flex mx-auto max-w-screen-md items-center h-screen">
@@ -83,53 +73,65 @@ function SignupPage() {
               className="mt-2 w-1/2 mb-4"
             />
           </h1>
-          <form method="POST">
+          <form onSubmit={handleSubmit} typeof="submit">
             <input
               aria-label="Enter Username"
               type="text"
-              placeholder="Username"
               name="name"
-              value={values.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              id="name"
+              onChange={formik.handleChange}
+              value={formik.values.name}
+              onBlur={formik.handleBlur}
+              placeholder="Username"
               className="text-sm text-gray-base w-full my-3 py-5 px-4 h-2 border border-gray-primary mb-1 rounded "
             />
+            {formik.dirty && formik.errors.name && formik.touched.name && (
+              <p className=" text-red-primary text-xs mb-2">
+                {formik.errors.name}
+              </p>
+            )}
             <input
               aria-label="Enter your email address"
               type="text"
-              placeholder="Email address"
               name="email"
-              value={values.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              id="email"
+              onChange={formik.handleChange}
+              value={formik.values.email}
+              onBlur={formik.handleBlur}
+              placeholder="Email address"
               className="text-sm text-gray-base w-full my-3 py-5 px-4 h-2 border border-gray-primary mb-1 rounded "
             />
+            {formik.dirty && formik.errors.email && formik.touched.email && (
+              <p className="text-red-primary text-xs mb-2">
+                {formik.errors.email}
+              </p>
+            )}
             <input
               aria-label="Enter your password"
               type="password"
-              placeholder="Password"
               name="password"
-              value={values.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              id="password"
+              onChange={formik.handleChange}
+              value={formik.values.password}
+              onBlur={formik.handleBlur}
+              placeholder="Password"
               className="text-sm text-gray-base w-full my-3 py-5 px-4 h-2 border border-gray-primary mb-2 rounded "
             />
-            {(errors.name || errors.email || errors.password) &&
-            (touched.name || touched.email || touched.password) ? (
-              <p className="text-red-primary mb-1 text-xs">
-                *{errors.name || errors.email || errors.password}
-              </p>
-            ) : null}
+
+            {formik.dirty &&
+              formik.errors.password &&
+              formik.touched.password && (
+                <p className="text-red-primary text-xs mb-2">
+                  {formik.errors.password}
+                </p>
+              )}
+
             <button
               type="submit"
-              className={`bg-blue-medium text-white my-2 w-full rounded h-8 font-bold ${
-                errors.name || errors.email || errors.password
-                  ? "opacity-50"
-                  : ""
-              }`}
-              onClick={(e) => submitHandler(e)}
+              className={`bg-blue-medium text-white my-2 w-full rounded h-8 font-bold 
+              `}
             >
-              {isPending ? "Loading" : "Sign Up"}
+              {"Sign Up"}
             </button>
           </form>
         </div>
